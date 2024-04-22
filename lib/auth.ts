@@ -12,7 +12,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(data, request) {
-        const res = await fetch("http://localhost:3000/api/auth/verify", {
+        const res = await fetch(`${process.env.AUTH_URL}/api/auth/verify`, {
           method: "POST",
           body: JSON.stringify(data),
           headers: { "Content-Type": "application/json" },
