@@ -5,18 +5,11 @@ import { GetProductsSingle, StockStatus } from "@/types/product.type";
 import { formatNumber } from "@/utils/formatter";
 import {
   Button,
-  Card,
-  CardBody,
   Chip,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
   Spinner,
   useDisclosure,
 } from "@nextui-org/react";
@@ -29,11 +22,11 @@ import {
   TableRow,
   getKeyValue,
 } from "@nextui-org/table";
-import { DotsThreeVertical, Warning } from "@phosphor-icons/react";
+import { DotsThreeVertical } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Pagination } from "./ui/Pagination";
 import { ProductDeleteModal } from "./ProductDeleteModal";
+import { Pagination } from "./ui/Pagination";
 
 type ProductKeys = keyof GetProductsSingle | "action";
 
