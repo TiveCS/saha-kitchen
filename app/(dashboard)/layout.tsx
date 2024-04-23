@@ -1,7 +1,9 @@
 import { DashboardNavbar } from "@/components/DashboardNavbar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
+import { Suspense } from "react";
+import Loading from "./loading";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -14,7 +16,7 @@ export default function DashboardLayout({
         <DashboardNavbar />
 
         <section className="flex-1 flex flex-col bg-gray-100 dark:bg-background">
-          {children}
+          <Suspense fallback={<Loading />}>{children}</Suspense>
         </section>
       </div>
     </div>

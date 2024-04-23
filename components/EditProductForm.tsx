@@ -46,14 +46,15 @@ export function EditProductForm({ id }: EditProductFormProps) {
   const onSubmit = async (data: EditProductSchemaType) => {
     toast.promise(
       async () => {
-        await mutateAsync(data);
+        await mutateAsync(data, {
+          onSuccess: () => router.push("/products"),
+        });
         form.reset();
-        router.push("/products");
       },
       {
-        loading: "Menambahkan produk...",
-        success: "Produk berhasil ditambahkan",
-        error: "Gagal menambahkan produk",
+        loading: "Mengubah produk...",
+        success: "Produk berhasil diubah",
+        error: "Gagal mengubah produk",
       }
     );
   };

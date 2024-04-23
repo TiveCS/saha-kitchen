@@ -18,7 +18,7 @@ export function ThemeSwitcher() {
 
   return (
     <Button
-      variant="flat"
+      variant="light"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       isIconOnly
     >

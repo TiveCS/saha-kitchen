@@ -1,16 +1,16 @@
 "use client";
 
+import { useNewProduct } from "@/queries/product.query";
 import {
   NewProductSchema,
   NewProductSchemaType,
 } from "@/schemas/product.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Card, CardBody } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { FormInput, FormInputNumber } from "./ui/FormInput";
-import { redirect, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useNewProduct } from "@/queries/product.query";
+import { FormInput, FormInputNumber } from "./ui/FormInput";
 
 export function NewProductForm() {
   const router = useRouter();
@@ -61,12 +61,12 @@ export function NewProductForm() {
             }}
           />
 
-          <div className="flex flex-row gap-x-6">
+          <div className="flex flex-row gap-x-4">
             <FormInputNumber
               control={form.control}
               name="minimum_stock"
               inputProps={{
-                label: "Minimal Stok",
+                label: "Minimum Stok",
               }}
             />
 

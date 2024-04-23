@@ -1,30 +1,29 @@
 "use client";
 
-import { useGetProducts } from "@/queries/product.query";
+import { useGetMaterials } from "@/queries/material.query";
 import { StockStatus } from "@/types/app.type";
-import { GetProductsSingle } from "@/types/product.type";
+import { GetMaterialsSingle } from "@/types/material.type";
 import { formatNumber } from "@/utils/formatter";
+import { toPascalCase } from "@/utils/string";
 import { Chip, useDisclosure } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ProductDeleteModal } from "./ProductDeleteModal";
-import { ProductTableCellAction } from "./ProductTableCellAction";
+import { MaterialDeleteModal } from "./MaterialDeleteModal";
+import { MaterialTableCellAction } from "./MaterialTableCellAction";
 import { DataTable, DataTableHandleCellValueArgs } from "./ui/DataTable";
 
-type ProductKeys = keyof GetProductsSingle | "action";
+type MaterialKeys = keyof GetMaterialsSingle | "action";
 
-interface ProductsTableProps {}
-
-export function ProductsTable({}: ProductsTableProps) {
+export function MaterialsTable() {
   const router = useRouter();
-  const columns: { key: ProductKeys; label: string }[] = [
+  const columns: { key: MaterialKeys; label: string }[] = [
     {
       key: "index",
       label: "NO",
     },
     {
       key: "name",
-      label: "NAMA PRODUK",
+      label: "NAMA BAHAN",
     },
     {
       key: "minimumStock",
@@ -35,12 +34,8 @@ export function ProductsTable({}: ProductsTableProps) {
       label: "STOK SAAT INI",
     },
     {
-      key: "price",
-      label: "HARGA SATUAN (Rp)",
-    },
-    {
-      key: "asset",
-      label: "TOTAL ASET (Rp)",
+      key: "unit",
+      label: "SATUAN",
     },
     {
       key: "stockStatus",
@@ -53,8 +48,7 @@ export function ProductsTable({}: ProductsTableProps) {
   ];
 
   const [page, setPage] = useState(1);
-
-  const { data, isLoading, isPending, error } = useGetProducts({ page });
+  const { data, isLoading, error, isPending } = useGetMaterials({ page });
 
   const {
     isOpen: isDeleteDialogOpen,
@@ -62,18 +56,18 @@ export function ProductsTable({}: ProductsTableProps) {
     onOpenChange: onDeleteDialogOpenChange,
     onClose: onDeleteDialogClose,
   } = useDisclosure();
-  const [deleteSelectedProduct, setDeleteSelectedProduct] =
-    useState<GetProductsSingle | null>(null);
+  const [deleteSelectedMaterial, setDeleteSelectedMaterial] =
+    useState<GetMaterialsSingle | null>(null);
 
   const handleRowValue = ({
-    item,
     key: columnKey,
+    item,
     value,
-  }: DataTableHandleCellValueArgs<GetProductsSingle>): any => {
+  }: DataTableHandleCellValueArgs<GetMaterialsSingle>): any => {
     if (typeof value === "number") value = formatNumber(value);
 
     if (columnKey === "stockStatus") {
-      const stockStatus = value as GetProductsSingle["stockStatus"];
+      const stockStatus = value as GetMaterialsSingle["stockStatus"];
       const isOk = stockStatus === StockStatus.OK;
       value = (
         <Chip size="sm" color={isOk ? "success" : "warning"} variant="flat">
@@ -82,12 +76,16 @@ export function ProductsTable({}: ProductsTableProps) {
       );
     }
 
+    if (columnKey === "unit") {
+      value = toPascalCase(value);
+    }
+
     if (columnKey === "action") {
       value = (
-        <ProductTableCellAction
+        <MaterialTableCellAction
           item={item}
           openDeleteDialog={openDeleteDialog}
-          setDeleteSelectedProduct={setDeleteSelectedProduct}
+          setDeleteSelectedMaterial={setDeleteSelectedMaterial}
         />
       );
     }
@@ -96,17 +94,17 @@ export function ProductsTable({}: ProductsTableProps) {
 
   return (
     <>
-      <ProductDeleteModal
-        product={deleteSelectedProduct}
-        setProduct={setDeleteSelectedProduct}
+      <MaterialDeleteModal
         isOpen={isDeleteDialogOpen}
         onClose={onDeleteDialogClose}
         onOpenChange={onDeleteDialogOpenChange}
+        material={deleteSelectedMaterial}
+        setMaterial={setDeleteSelectedMaterial}
       />
 
       <DataTable
         columns={columns}
-        items={data?.products}
+        items={data?.materials}
         count={data?.count}
         page={page}
         setPage={setPage}

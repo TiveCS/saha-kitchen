@@ -6,7 +6,7 @@ import {
   EditProductSchemaType,
   NewProductSchemaType,
 } from "@/schemas/product.schema";
-import { StockStatus } from "@/types/product.type";
+import { StockStatus } from "@/types/app.type";
 import { Decimal } from "@prisma/client/runtime/library";
 import { redirect } from "next/navigation";
 
