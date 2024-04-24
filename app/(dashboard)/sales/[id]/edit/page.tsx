@@ -17,10 +17,6 @@ export default async function EditSalesPage({
             href: "/sales",
           },
           {
-            label: "Detail Penjualan",
-            href: `/sales/${params.id}`,
-          },
-          {
             label: "Ubah Penjualan",
             href: `/sales/${params.id}/edit`,
           },
@@ -32,7 +28,7 @@ export default async function EditSalesPage({
           as={Link}
           startContent={<CaretLeft className="w-4 h-4" />}
           variant="ghost"
-          href={`/sales/${params.id}`}
+          href={`/sales`}
         >
           Kembali
         </Button>
