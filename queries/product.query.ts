@@ -19,8 +19,8 @@ import {
 } from "@tanstack/react-query";
 
 export function useGetProducts({
-  take = 6,
-  page = 1,
+  take,
+  page,
 }: {
   page?: number;
   take?: number;

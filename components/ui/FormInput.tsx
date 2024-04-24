@@ -4,12 +4,23 @@ import {
   handleNumericInputChange,
   handleNumericInputDisplay,
 } from "@/utils/form";
-import { Input, InputProps, Select, SelectProps } from "@nextui-org/react";
-import React from "react";
+import {
+  Autocomplete,
+  AutocompleteItem,
+  AutocompleteProps,
+  DatePicker,
+  DatePickerProps,
+  Input,
+  InputProps,
+  Select,
+  SelectProps,
+} from "@nextui-org/react";
+import { CalendarDots } from "@phosphor-icons/react";
+import { ReactNode } from "react";
 import {
   Controller,
-  ControllerProps,
   FieldPath,
+  FieldPathValue,
   FieldValues,
   UseControllerProps,
 } from "react-hook-form";
@@ -17,7 +28,7 @@ import {
 interface FormInputProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-> extends Omit<ControllerProps<TFieldValues, TName>, "render"> {
+> extends UseControllerProps<TFieldValues, TName> {
   inputProps?: InputProps;
 }
 
@@ -26,6 +37,13 @@ interface FormSelectProps<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > extends UseControllerProps<TFieldValues, TName> {
   selectProps: SelectProps;
+}
+
+interface FormDatePickerProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> extends UseControllerProps<TFieldValues, TName> {
+  datePickerProps: DatePickerProps;
 }
 
 export function FormInput<
@@ -101,6 +119,86 @@ export function FormInputSelect<
             isInvalid={!!fieldState.error}
             {...selectProps}
           />
+        );
+      }}
+    />
+  );
+}
+
+export function FormDatePicker<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>({ datePickerProps, ...props }: FormDatePickerProps<TFieldValues, TName>) {
+  return (
+    <Controller
+      {...props}
+      render={({ field, fieldState, formState }) => {
+        return (
+          <DatePicker
+            {...field}
+            ref={field.ref}
+            errorMessage={fieldState.error?.message}
+            isInvalid={!!fieldState.error}
+            selectorIcon={<CalendarDots />}
+            isDisabled={
+              field.disabled || formState.isSubmitting || formState.isLoading
+            }
+            {...datePickerProps}
+          />
+        );
+      }}
+    />
+  );
+}
+
+interface FormAutoCompleteProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> extends UseControllerProps<TFieldValues, TName> {
+  processItem: (item: object) => {
+    key: string;
+    label: ReactNode;
+    value: any;
+  };
+  autoCompleteProps: Omit<AutocompleteProps, "children">;
+}
+
+export function FormAutoComplete<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>({ processItem, ...props }: FormAutoCompleteProps<TFieldValues, TName>) {
+  const { items, ...autoCompleteProps } = props.autoCompleteProps;
+  return (
+    <Controller
+      {...props}
+      render={({ field, fieldState, formState }) => {
+        return (
+          <Autocomplete
+            {...field}
+            isDisabled={
+              field.disabled || formState.isSubmitting || formState.isLoading
+            }
+            isLoading={formState.isLoading}
+            errorMessage={fieldState.error?.message}
+            isInvalid={!!fieldState.error}
+            onSelectionChange={field.onChange}
+            value={field.value}
+            items={items}
+            {...autoCompleteProps}
+          >
+            {(item) => {
+              0;
+              const processedItem = processItem(item);
+              return (
+                <AutocompleteItem
+                  key={processedItem.key}
+                  value={processedItem.value}
+                >
+                  {processedItem.label}
+                </AutocompleteItem>
+              );
+            }}
+          </Autocomplete>
         );
       }}
     />

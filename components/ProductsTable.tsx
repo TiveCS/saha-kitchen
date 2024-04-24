@@ -54,7 +54,10 @@ export function ProductsTable({}: ProductsTableProps) {
 
   const [page, setPage] = useState(1);
 
-  const { data, isLoading, isPending, error } = useGetProducts({ page });
+  const { data, isLoading, isPending, error } = useGetProducts({
+    page,
+    take: 6,
+  });
 
   const {
     isOpen: isDeleteDialogOpen,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Listbox, ListboxItem } from "@nextui-org/react";
+import { Listbox, ListboxItem, cn } from "@nextui-org/react";
 import {
   House,
   Lego,
@@ -11,8 +11,11 @@ import {
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import { useSession } from "next-auth/react";
 
 export function DashboardSidebar() {
+  const session = useSession();
+
   return (
     <motion.div
       className="border-r border-r-divider sticky grid grid-rows-9"
@@ -59,10 +62,12 @@ export function DashboardSidebar() {
         >
           Data Bahan Baku
         </ListboxItem>
+
         <ListboxItem
           key={"sales"}
           startContent={<Receipt className="w-5 h-5" />}
           href="/sales"
+          className={cn(session.data?.user.role !== "ADMIN" && "hidden")}
         >
           Data Penjualan
         </ListboxItem>
