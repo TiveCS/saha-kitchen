@@ -15,8 +15,8 @@ export default function Error({
       <p className="text-lg">{error.message}</p>
 
       <div className="flex flex-row gap-x-6">
-        <Button as={Link} href="/users" color="primary">
-          Kembali ke Manajemen User
+        <Button as={Link} href="/analytics" color="primary">
+          Kembali ke Dashboard
         </Button>
 
         <Button onClick={reset} variant="flat">

@@ -103,6 +103,7 @@ export function UsersTable() {
         isLoading={isPending || isLoading}
         handleCellValue={handleRowValue}
         selectionMode="none"
+        rowKey={(item) => item.id}
         classNames={{
           wrapper: "max-h-96",
         }}

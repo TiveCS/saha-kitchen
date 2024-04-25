@@ -30,13 +30,14 @@ interface DataTableProps<TData extends Record<string, any>> extends TableProps {
   items: TData[] | undefined;
   count?: number;
   columns: InputDataKeys[];
-  page: number;
-  setPage: (page: number) => void;
+  page?: number;
+  setPage?: (page: number) => void;
   onRowAction?: (key: Key) => void;
   href?: string;
   emptyContent?: ReactNode;
   errorContent?: ReactNode;
   isLoading?: boolean;
+  rowKey: (item: TData) => Key;
   handleCellValue?: (args: DataTableHandleCellValueArgs<TData>) => any;
 }
 
@@ -50,6 +51,7 @@ export function DataTable<TData extends Record<string, any>>({
   emptyContent,
   errorContent,
   isLoading,
+  rowKey,
   handleCellValue = ({ key, item, value }) =>
     typeof value === "number" ? formatNumber(value) : value,
   ...props
@@ -65,12 +67,15 @@ export function DataTable<TData extends Record<string, any>>({
       }}
       bottomContentPlacement="outside"
       bottomContent={
-        <Pagination
-          page={page}
-          setPage={setPage}
-          count={count}
-          rowsPerPage={6}
-        />
+        page &&
+        setPage && (
+          <Pagination
+            page={page}
+            setPage={setPage}
+            count={count}
+            rowsPerPage={6}
+          />
+        )
       }
       {...props}
     >
@@ -87,7 +92,7 @@ export function DataTable<TData extends Record<string, any>>({
         loadingContent={<Spinner />}
       >
         {(item) => (
-          <TableRow>
+          <TableRow key={rowKey(item)}>
             {(columnKey) => {
               let value = getKeyValue(item, columnKey);
 

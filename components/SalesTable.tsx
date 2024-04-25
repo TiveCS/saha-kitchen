@@ -121,6 +121,7 @@ export function SalesTable({
         emptyContent={"Tidak ada data penjualan yang ditemukan."}
         errorContent={error?.message}
         isLoading={isLoading}
+        rowKey={(item) => item.id}
         handleCellValue={handleRowValue}
         classNames={{
           wrapper: "max-h-96",

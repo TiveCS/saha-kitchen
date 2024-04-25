@@ -20,7 +20,6 @@ import { ReactNode } from "react";
 import {
   Controller,
   FieldPath,
-  FieldPathValue,
   FieldValues,
   UseControllerProps,
 } from "react-hook-form";
@@ -30,20 +29,6 @@ interface FormInputProps<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > extends UseControllerProps<TFieldValues, TName> {
   inputProps?: InputProps;
-}
-
-interface FormSelectProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-> extends UseControllerProps<TFieldValues, TName> {
-  selectProps: SelectProps;
-}
-
-interface FormDatePickerProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-> extends UseControllerProps<TFieldValues, TName> {
-  datePickerProps: DatePickerProps;
 }
 
 export function FormInput<
@@ -98,6 +83,13 @@ export function FormInputNumber<
   );
 }
 
+interface FormSelectProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> extends UseControllerProps<TFieldValues, TName> {
+  selectProps: SelectProps;
+}
+
 export function FormInputSelect<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
@@ -123,6 +115,13 @@ export function FormInputSelect<
       }}
     />
   );
+}
+
+interface FormDatePickerProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> extends UseControllerProps<TFieldValues, TName> {
+  datePickerProps: DatePickerProps;
 }
 
 export function FormDatePicker<

@@ -1,20 +1,19 @@
 "use client";
 
-import { getSales } from "@/actions/sales.action";
-import { GetProductsMany, GetProductsSingle } from "@/types/product.type";
+import { GetProductsMany } from "@/types/product.type";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 
-interface SalesProductSelectorProps {
+interface ProductSelectorProps {
   products: GetProductsMany;
   productId: string | null;
   setProductId: (productId: string | null) => void;
 }
 
-export function SalesProductSelector({
+export function ProductSelector({
   products,
   setProductId,
   productId,
-}: SalesProductSelectorProps) {
+}: ProductSelectorProps) {
   return (
     <Autocomplete
       label="Produk"

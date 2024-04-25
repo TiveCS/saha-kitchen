@@ -1,12 +1,12 @@
 "use client";
 
+import { useGetSalesQuery } from "@/queries/sales.query";
+import { GetProductsMany } from "@/types/product.type";
 import { Button, Link } from "@nextui-org/react";
 import { Plus } from "@phosphor-icons/react";
-import { SalesProductSelector } from "./SalesProductSelector";
+import { useState } from "react";
+import { ProductSelector } from "./ProductSelector";
 import { SalesTable } from "./SalesTable";
-import { GetProductsMany, GetProductsSingle } from "@/types/product.type";
-import { useEffect, useState } from "react";
-import { useGetSalesMutation, useGetSalesQuery } from "@/queries/sales.query";
 
 interface SalesListSectionProps {
   products: GetProductsMany;
@@ -34,7 +34,7 @@ export function SalesListSection({ products }: SalesListSectionProps) {
           Tambah Data Penjualan
         </Button>
 
-        <SalesProductSelector
+        <ProductSelector
           products={products}
           productId={productId}
           setProductId={setProductId}

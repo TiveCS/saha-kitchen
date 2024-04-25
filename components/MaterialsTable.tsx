@@ -113,6 +113,7 @@ export function MaterialsTable() {
         isLoading={isPending || isLoading}
         onRowAction={(key) => router.push(`/products/${key}`)}
         handleCellValue={handleRowValue}
+        rowKey={(item) => item.id}
         classNames={{
           wrapper: "max-h-96",
           tr: "cursor-pointer",
