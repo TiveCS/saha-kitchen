@@ -1,8 +1,7 @@
 "use client";
 
-import { useDeleteSales } from "@/queries/sales.query";
-import { GetSalesSingle } from "@/types/sales.type";
-import { formatNumber, formatReadableDate } from "@/utils/formatter";
+import { useDeleteUser } from "@/queries/users.query";
+import { GetUsersSingle } from "@/types/users.type";
 import {
   Button,
   Modal,
@@ -13,44 +12,41 @@ import {
 } from "@nextui-org/react";
 import { toast } from "sonner";
 
-interface SalesDeleteModalProps {
+interface UserDeleteModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
   onClose: () => void;
-  sales: GetSalesSingle | null;
-  setSales: (sales: GetSalesSingle | null) => void;
+  user: GetUsersSingle | null;
+  setUser: (user: GetUsersSingle | null) => void;
 }
 
-export function SalesDeleteModal({
+export function UserDeleteModal({
   isOpen,
   onClose,
   onOpenChange,
-  setSales,
-  sales,
-}: SalesDeleteModalProps) {
-  const { mutateAsync, isError, isSuccess, isPending, error } =
-    useDeleteSales();
+  setUser,
+  user,
+}: UserDeleteModalProps) {
+  const { mutateAsync, isError, isSuccess, isPending, error } = useDeleteUser();
 
   const handleDelete = async () => {
-    if (!sales) return;
+    if (!user) return;
 
     toast.promise(
       async () => {
-        const result = await mutateAsync(sales.id);
-        setSales(null);
+        const result = await mutateAsync(user.id);
+        setUser(null);
         onClose();
         return result;
       },
       {
-        loading: "Menghapus data penjualan...",
-        success: "Berhasil menghapus data penjualan",
-        error: "Gagal menghapus data penjualan",
+        loading: "Menghapus data user...",
+        success: "Berhasil menghapus data user",
+        error: "Gagal menghapus data user",
         description: isError
           ? error?.message
           : isSuccess
-          ? `Data penjualan pada "${formatReadableDate(
-              sales.occurredAt
-            )}" telah dihapus`
+          ? `User "${user.username}" telah dihapus`
           : undefined,
       }
     );
@@ -58,10 +54,10 @@ export function SalesDeleteModal({
 
   return (
     <Modal
-      isOpen={isOpen && !!sales}
+      isOpen={isOpen && !!user}
       onOpenChange={onOpenChange}
       onClose={() => {
-        setSales(null);
+        setUser(null);
         onClose();
       }}
     >
@@ -69,13 +65,13 @@ export function SalesDeleteModal({
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              Hapus Data Penjualan?
+              Hapus User?
             </ModalHeader>
             <ModalBody>
               <p>
                 Aksi ini tidak dapat di ubah setelah konfirmasi. Apakah anda
-                yakin ingin menghapus data penjualan pada tanggal{" "}
-                <strong>{sales && formatReadableDate(sales.occurredAt)}</strong>
+                yakin ingin menghapus user dengan username{" "}
+                <strong>{user?.username}</strong>?
               </p>
             </ModalBody>
             <ModalFooter>
@@ -84,7 +80,7 @@ export function SalesDeleteModal({
                 color="danger"
                 variant="light"
                 onPress={handleDelete}
-                isDisabled={!sales}
+                isDisabled={!user}
               >
                 Hapus
               </Button>

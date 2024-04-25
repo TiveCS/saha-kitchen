@@ -1,8 +1,9 @@
 "use server";
 
+import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { SignInSchemaType, SignUpSchemaType } from "@/schemas/auth.schema";
-import { Prisma } from "@prisma/client";
+import { Prisma, UserRole } from "@prisma/client";
 import * as argon2 from "argon2";
 
 export async function signUpAction({
@@ -11,12 +12,18 @@ export async function signUpAction({
   password,
   role,
 }: SignUpSchemaType) {
+  const session = await auth();
+
+  if (!session || session.user.role !== UserRole.ADMIN) {
+    throw new Error("Anda tidak memiliki akses untuk membuat user");
+  }
+
   const user = await prisma.user.findUnique({
     where: { username },
   });
 
   if (user) {
-    throw new Error("User already exists");
+    throw new Error("Username sudah digunakan");
   }
 
   const hashedPassword = await argon2.hash(password);
@@ -35,11 +42,9 @@ export async function signUpAction({
     return "User created successfully";
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(
-        "User creation failed. Error: " + error.code + " , " + error.message
-      );
+      throw new Error(error.message + ". Code: " + error.code);
     }
-    return "User creation failed. Error: Unhandled";
+    return "Error: Unhandled";
   }
 }
 

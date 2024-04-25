@@ -4,6 +4,7 @@ import { Listbox, ListboxItem, cn } from "@nextui-org/react";
 import {
   House,
   Lego,
+  ListMagnifyingGlass,
   Package,
   Receipt,
   UsersThree,
@@ -12,6 +13,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { useSession } from "next-auth/react";
+import { UserRole } from "@prisma/client";
 
 export function DashboardSidebar() {
   const session = useSession();
@@ -44,6 +46,7 @@ export function DashboardSidebar() {
           key={"users"}
           startContent={<UsersThree className="w-5 h-5" />}
           href="/users"
+          className={cn(session.data?.user.role !== UserRole.ADMIN && "hidden")}
         >
           Manajemen User
         </ListboxItem>
@@ -67,9 +70,18 @@ export function DashboardSidebar() {
           key={"sales"}
           startContent={<Receipt className="w-5 h-5" />}
           href="/sales"
-          className={cn(session.data?.user.role !== "ADMIN" && "hidden")}
+          className={cn(session.data?.user.role !== UserRole.ADMIN && "hidden")}
         >
           Data Penjualan
+        </ListboxItem>
+
+        <ListboxItem
+          key={"forecastings"}
+          startContent={<ListMagnifyingGlass className="w-5 h-5" />}
+          href="/forecastings"
+          className={cn(session.data?.user.role !== UserRole.ADMIN && "hidden")}
+        >
+          Forecasting
         </ListboxItem>
       </Listbox>
 
