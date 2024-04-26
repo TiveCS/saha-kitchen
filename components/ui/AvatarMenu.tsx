@@ -1,6 +1,7 @@
 "use client";
 
 import { StructUser } from "@/lib/next-auth";
+import { toPascalCase } from "@/utils/string";
 import {
   Dropdown,
   DropdownItem,
@@ -25,12 +26,13 @@ export function AvatarMenu({ user, handleSignOut }: AvatarMenuProps) {
           className="transition-transform"
           classNames={{
             base: "flex flex-row-reverse gap-x-4",
+            wrapper: "inline-flex flex-col items-end",
           }}
           avatarProps={{
             showFallback: true,
-            src: "https://github.com/shadcn.png",
             fallback: <UserIcon className="w-5 h-5" />,
           }}
+          description={toPascalCase(user.role)}
         />
       </DropdownTrigger>
 

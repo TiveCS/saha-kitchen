@@ -14,26 +14,22 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FormInput, FormInputNumber, FormInputSelect } from "./ui/FormInput";
+import { MaterialDetail } from "@/types/material.type";
 
 interface EditMaterialFormProps {
-  id: string;
+  material: MaterialDetail;
 }
 
-export function EditMaterialForm({ id }: EditMaterialFormProps) {
+export function EditMaterialForm({ material }: EditMaterialFormProps) {
   const router = useRouter();
 
   const { control, formState, reset, handleSubmit, watch } =
     useForm<EditMaterialSchemaType>({
       resolver: zodResolver(EditMaterialSchema),
-      defaultValues: async () => {
-        const result = await getMaterialById(id);
-
-        return {
-          id: result.id,
-          name: result.name,
-          unit: result.unit,
-          minimum_stock: result.minimumStock,
-        };
+      defaultValues: {
+        name: material.name,
+        unit: material.unit,
+        minimum_stock: material.minimumStock,
       },
     });
 
@@ -45,7 +41,7 @@ export function EditMaterialForm({ id }: EditMaterialFormProps) {
     toast.promise(
       async () => {
         await mutateAsync(
-          { id, data },
+          { id: material.id, data },
           {
             onSuccess: () => router.push("/materials"),
           }
