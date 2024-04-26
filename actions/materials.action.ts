@@ -4,11 +4,15 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import {
   EditMaterialSchemaType,
+  EditMaterialStockHistorySchemaType,
   NewMaterialSchemaType,
+  NewMaterialStockHistorySchemaType,
 } from "@/schemas/material.schema";
 import { StockStatus } from "@/types/app.type";
+import { MaterialDetail } from "@/types/material.type";
 import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function newMaterial(data: NewMaterialSchemaType) {
@@ -117,7 +121,9 @@ export async function getMaterials(args?: { page?: number; take?: number }) {
   return { count, materials };
 }
 
-export async function getMaterialById(id: string) {
+export async function getMaterialById(
+  id: string
+): Promise<MaterialDetail | null> {
   const session = await auth();
 
   if (!session) {
@@ -126,17 +132,41 @@ export async function getMaterialById(id: string) {
 
   const material = await prisma.material.findUnique({
     where: { id },
+    select: {
+      id: true,
+      name: true,
+      unit: true,
+      minimumStock: true,
+      createdAt: true,
+      updatedAt: true,
+      stockHistories: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          currentStock: true,
+          createdAt: true,
+          reporter: { select: { name: true } },
+        },
+      },
+    },
   });
 
-  if (!material) {
-    throw new Error("Material tidak ditemukan.");
-  }
+  if (!material) return null;
 
   return {
     id: material.id,
     name: material.name,
     unit: material.unit,
     minimumStock: material.minimumStock.toNumber(),
+    stockHistories: material.stockHistories.map((stockHistory, index) => ({
+      index: index + 1,
+      id: stockHistory.id,
+      currentStock: stockHistory.currentStock.toNumber(),
+      createdAt: stockHistory.createdAt,
+      reporter: stockHistory.reporter.name,
+    })),
     createdAt: material.createdAt,
     updatedAt: material.updatedAt,
   };
@@ -175,4 +205,95 @@ export async function editMaterial(id: string, data: EditMaterialSchemaType) {
     }
     throw error;
   }
+}
+
+export async function newMaterialStockHistory(
+  data: NewMaterialStockHistorySchemaType
+) {
+  const session = await auth();
+
+  if (!session) {
+    return redirect("/login");
+  }
+
+  const material = await prisma.material.findUnique({
+    where: { id: data.material_id },
+  });
+
+  if (!material) {
+    throw new Error("Bahan baku tidak ditemukan.");
+  }
+
+  const stockHistory = await prisma.materialStockHistory.create({
+    data: {
+      currentStock: data.current_stock,
+      material: { connect: { id: data.material_id } },
+      reporter: { connect: { id: session.user.id } },
+    },
+  });
+
+  revalidatePath(`/materials/${material.id}`);
+
+  return {
+    id: stockHistory.id,
+    materialId: stockHistory.materialId,
+    currentStock: stockHistory.currentStock.toNumber(),
+    createdAt: stockHistory.createdAt,
+  };
+}
+
+export async function editMaterialStockHistory(
+  data: EditMaterialStockHistorySchemaType
+) {
+  const session = await auth();
+
+  if (!session) {
+    return redirect("/login");
+  }
+
+  try {
+    const stockHistory = await prisma.materialStockHistory.update({
+      where: { id: data.id },
+      data: {
+        currentStock: data.current_stock,
+      },
+    });
+
+    revalidatePath(`/materials/${stockHistory.materialId}`);
+
+    return {
+      id: stockHistory.id,
+      materialId: stockHistory.materialId,
+      currentStock: stockHistory.currentStock.toNumber(),
+      createdAt: stockHistory.createdAt,
+    };
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Riwayat stok tidak ditemukan.");
+      }
+    }
+    throw error;
+  }
+}
+
+export async function deleteMaterialStockHistory(id: string) {
+  const session = await auth();
+
+  if (!session) {
+    return redirect("/login");
+  }
+
+  const stockHistory = await prisma.materialStockHistory.delete({
+    where: { id },
+  });
+
+  revalidatePath(`/materials/${stockHistory.materialId}`);
+
+  return {
+    id: stockHistory.id,
+    materialId: stockHistory.materialId,
+    currentStock: stockHistory.currentStock.toNumber(),
+    createdAt: stockHistory.createdAt,
+  };
 }

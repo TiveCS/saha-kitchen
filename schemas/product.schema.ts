@@ -15,3 +15,20 @@ export const EditProductSchema = NewProductSchema.omit({
 
 export type NewProductSchemaType = z.infer<typeof NewProductSchema>;
 export type EditProductSchemaType = z.infer<typeof EditProductSchema>;
+
+export const NewProductStockHistorySchema = z.object({
+  product_id: z.string().cuid(),
+  current_stock: z.number().nonnegative(),
+});
+
+export const EditProductStockHistorySchema = NewProductStockHistorySchema.omit({
+  product_id: true,
+}).extend({ id: z.string().cuid() });
+
+export type NewProductStockHistorySchemaType = z.infer<
+  typeof NewProductStockHistorySchema
+>;
+
+export type EditProductStockHistorySchemaType = z.infer<
+  typeof EditProductStockHistorySchema
+>;

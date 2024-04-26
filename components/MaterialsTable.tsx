@@ -108,10 +108,10 @@ export function MaterialsTable() {
         count={data?.count}
         page={page}
         setPage={setPage}
-        emptyContent={"Tidak ada produk yang ditemukan."}
+        emptyContent={"Tidak ada bahan baku yang ditemukan."}
         errorContent={error?.message}
         isLoading={isPending || isLoading}
-        onRowAction={(key) => router.push(`/products/${key}`)}
+        onRowAction={(key) => router.push(`/materials/${key}`)}
         handleCellValue={handleRowValue}
         rowKey={(item) => item.id}
         classNames={{

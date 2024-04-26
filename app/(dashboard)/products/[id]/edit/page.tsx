@@ -1,14 +1,20 @@
+import { getProductById } from "@/actions/products.action";
 import { EditProductForm } from "@/components/EditProductForm";
 import { DashboardLinkSetter } from "@/store/dashboard-links.store";
 import { Button } from "@nextui-org/react";
 import { CaretLeft } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 export default async function EditProductPage({
   params,
 }: {
   params: { id: string };
 }) {
+  const product = await getProductById(params.id);
+
+  if (!product) return notFound();
+
   return (
     <>
       <DashboardLinkSetter
@@ -38,7 +44,7 @@ export default async function EditProductPage({
           Kembali
         </Button>
 
-        <EditProductForm id={params.id} />
+        <EditProductForm product={product} />
       </section>
     </>
   );

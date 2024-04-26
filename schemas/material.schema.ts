@@ -31,3 +31,32 @@ export const EditMaterialSchema = z.object({
 
 export type EditMaterialSchemaType = z.infer<typeof EditMaterialSchema>;
 export type NewMaterialSchemaType = z.infer<typeof NewMaterialSchema>;
+
+export const NewMaterialStockHistorySchema = z.object({
+  material_id: z
+    .string({ required_error: "ID bahan baku tidak boleh kosong" })
+    .cuid(),
+  current_stock: z
+    .number({ required_error: "Stok tidak boleh kosong" })
+    .int("Stok harus berupa bilangan bulat")
+    .nonnegative("Stok tidak boleh kurang dari 0"),
+});
+
+export const EditMaterialStockHistorySchema = z.object({
+  id: z
+    .string({
+      required_error: "ID riwayat stok tidak boleh kosong",
+    })
+    .cuid(),
+  current_stock: z
+    .number({ required_error: "Stok tidak boleh kosong" })
+    .int("Stok harus berupa bilangan bulat")
+    .nonnegative("Stok tidak boleh kurang dari 0"),
+});
+
+export type NewMaterialStockHistorySchemaType = z.infer<
+  typeof NewMaterialStockHistorySchema
+>;
+export type EditMaterialStockHistorySchemaType = z.infer<
+  typeof EditMaterialStockHistorySchema
+>;

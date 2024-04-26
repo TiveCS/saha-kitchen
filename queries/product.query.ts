@@ -2,14 +2,19 @@
 
 import {
   deleteProduct,
+  deleteProductStockHistory,
   editProduct,
+  editProductStockHistory,
   getProductById,
   getProducts,
   newProduct,
+  newProductStockHistory,
 } from "@/actions/products.action";
 import {
   EditProductSchemaType,
+  EditProductStockHistorySchemaType,
   NewProductSchemaType,
+  NewProductStockHistorySchemaType,
 } from "@/schemas/product.schema";
 import {
   keepPreviousData,
@@ -86,6 +91,50 @@ export function useDeleteProduct() {
       await queryClient.invalidateQueries({
         queryKey: ["products"],
         exact: false,
+      });
+    },
+  });
+}
+
+export function useNewProductStockHistory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["new-stock-history"],
+    mutationFn: async (data: NewProductStockHistorySchemaType) =>
+      await newProductStockHistory(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["products"],
+      });
+    },
+  });
+}
+
+export function useDeleteProductStockHistory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["delete-stock-history"],
+    mutationFn: async (id: string) => await deleteProductStockHistory(id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["products"],
+      });
+    },
+  });
+}
+
+export function useEditProductStockHistory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["edit-stock-history"],
+    mutationFn: async (data: EditProductStockHistorySchemaType) =>
+      await editProductStockHistory(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["products"],
       });
     },
   });

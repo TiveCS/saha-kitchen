@@ -15,3 +15,21 @@ export const MaterialUnitAbbreviation: Record<MaterialUnit, string> = {
   GRAM: "g",
   LITER: "L",
 } as const;
+
+export type MaterialStockHistory = {
+  index: number;
+  id: string;
+  currentStock: number;
+  createdAt: Date;
+  reporter: string;
+};
+
+export type MaterialDetail = {
+  id: string;
+  name: string;
+  unit: MaterialUnit;
+  minimumStock: number;
+  createdAt: Date;
+  updatedAt: Date;
+  stockHistories: MaterialStockHistory[];
+};
