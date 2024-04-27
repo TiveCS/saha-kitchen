@@ -3,8 +3,8 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Inter } from "next/font/google";
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
+const defaultUrl = process.env.AUTH_URL
+  ? `${process.env.AUTH_URL}`
   : "http://localhost:3000";
 
 export const metadata = {
