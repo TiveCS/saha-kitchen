@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import { SignInSchemaType, SignUpSchemaType } from "@/schemas/auth.schema";
 import { Prisma, UserRole } from "@prisma/client";
 import * as argon2 from "argon2";
+import { getHasUser } from "./users.action";
 
 export async function signUpAction({
   name,
@@ -13,8 +14,9 @@ export async function signUpAction({
   role,
 }: SignUpSchemaType) {
   const session = await auth();
+  const hasUser = await getHasUser();
 
-  if (!session || session.user.role !== UserRole.ADMIN) {
+  if (hasUser && (!session || session.user.role !== UserRole.ADMIN)) {
     throw new Error("Anda tidak memiliki akses untuk membuat user");
   }
 

@@ -5,7 +5,13 @@ import prisma from "@/lib/prisma";
 import { EditUserSchemaType } from "@/schemas/users.schema";
 import { Prisma, UserRole } from "@prisma/client";
 import * as argon2 from "argon2";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
+
+export async function getHasUser() {
+  const userCount = await prisma.user.count();
+
+  return userCount > 0;
+}
 
 export async function getUsers(args?: { page?: number; take?: number }) {
   const session = await auth();

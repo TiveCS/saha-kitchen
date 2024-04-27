@@ -1,18 +1,18 @@
 "use client";
 
+import { useNewUser } from "@/queries/users.query";
 import { SignUpSchema, SignUpSchemaType } from "@/schemas/auth.schema";
+import { toPascalCase } from "@/utils/string";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Card, CardBody, SelectItem } from "@nextui-org/react";
+import { Eye, EyeSlash } from "@phosphor-icons/react";
+import { UserRole } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FormInput, FormInputSelect } from "./ui/FormInput";
-import { useState } from "react";
-import { Eye, EyeSlash } from "@phosphor-icons/react";
-import { UserRole } from "@prisma/client";
-import { toPascalCase } from "@/utils/string";
-import { signUpAction } from "@/actions/auth.action";
-import { useNewUser } from "@/queries/users.query";
+import { getHasUser } from "@/actions/users.action";
 
 export function NewUserForm() {
   const router = useRouter();
@@ -31,10 +31,15 @@ export function NewUserForm() {
   const onSubmit = async (data: SignUpSchemaType) => {
     toast.promise(
       async () => {
+        const hasUser = await getHasUser();
         await mutateAsync(data, {
           onSuccess: () => {
             form.reset();
-            router.push("/users");
+            if (hasUser) {
+              router.push("/users");
+            } else {
+              router.push("/login");
+            }
           },
         });
       },

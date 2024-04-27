@@ -10,3 +10,9 @@ export const PurchaseSystemAbbreviation: Record<PurchaseSystem, string> = {
 export type GetSalesCount = Awaited<ReturnType<typeof getSales>>["count"];
 export type GetSalesMany = Awaited<ReturnType<typeof getSales>>["sales"];
 export type GetSalesSingle = NarrowArray<GetSalesMany>;
+
+export type ProductTotalSalesAnalytics = {
+  productId: string;
+  productName: string;
+  totalSales: number;
+};

@@ -20,7 +20,7 @@ export function DashboardSidebar() {
 
   return (
     <motion.div
-      className="border-r border-r-divider sticky grid grid-rows-9"
+      className="border-r border-r-divider sticky grid grid-rows-9 max-h-screen"
       initial={{
         width: "14rem",
       }}

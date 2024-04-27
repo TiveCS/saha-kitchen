@@ -5,6 +5,7 @@ import {
   editSales,
   getSales,
   getSalesById,
+  getTotalSalesForProducts,
   newSales,
 } from "@/actions/sales.action";
 import {
@@ -18,16 +19,26 @@ export function useGetSalesQuery({
   productId,
   page,
   take,
+  startOccurredAt,
+  endOccurredAt,
 }: {
   productId: string | null;
   page?: number;
   take?: number;
+  startOccurredAt?: Date;
+  endOccurredAt?: Date;
 }) {
   return useQuery({
-    queryKey: ["sales", productId, page, take],
+    queryKey: ["sales", productId, page, take, startOccurredAt, endOccurredAt],
     queryFn: async () => {
       if (!productId) return { count: 0, sales: [] };
-      return await getSales({ productId, page, take });
+      return await getSales({
+        productId,
+        page,
+        take,
+        startOccurredAt,
+        endOccurredAt,
+      });
     },
   });
 }
@@ -100,6 +111,27 @@ export function useDeleteSales() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["sales"],
+      });
+    },
+  });
+}
+
+export function useGetTotalSalesForProducts({
+  productIds,
+  startOccurredAt,
+  endOccurredAt,
+}: {
+  productIds: string[];
+  startOccurredAt?: Date;
+  endOccurredAt?: Date;
+}) {
+  return useQuery({
+    queryKey: ["sales", productIds, startOccurredAt, endOccurredAt],
+    queryFn: async () => {
+      return await getTotalSalesForProducts({
+        productIds,
+        startOccurredAt,
+        endOccurredAt,
       });
     },
   });

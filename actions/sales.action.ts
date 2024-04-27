@@ -4,10 +4,9 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import {
   EditSalesActionSchemaType,
-  EditSalesSchemaType,
   NewSalesActionSchemaType,
 } from "@/schemas/sales.schema";
-import { getLocalTimeZone } from "@internationalized/date";
+import { ProductTotalSalesAnalytics } from "@/types/sales.type";
 import { redirect } from "next/navigation";
 
 export async function newSales(data: NewSalesActionSchemaType) {
@@ -92,6 +91,8 @@ export async function getSales(args: {
   productId: string;
   page?: number;
   take?: number;
+  startOccurredAt?: Date;
+  endOccurredAt?: Date;
 }) {
   const session = await auth();
 
@@ -110,6 +111,13 @@ export async function getSales(args: {
       orderBy: { occurredAt: "desc" },
       where: {
         productId: args.productId,
+        occurredAt:
+          args.startOccurredAt || args.endOccurredAt
+            ? {
+                gte: args.startOccurredAt ? args.startOccurredAt : undefined,
+                lte: args.endOccurredAt ? args.endOccurredAt : undefined,
+              }
+            : undefined,
       },
       include: {
         product: true,
@@ -163,3 +171,58 @@ export async function getSalesById(id: string) {
     updatedAt: sale.updatedAt,
   };
 }
+
+export async function getTotalSalesForProducts({
+  startOccurredAt,
+  endOccurredAt,
+  productIds,
+}: {
+  productIds: string[];
+  startOccurredAt?: Date;
+  endOccurredAt?: Date;
+}): Promise<ProductTotalSalesAnalytics[]> {
+  const session = await auth();
+
+  if (!session) return redirect("/login");
+
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    select: {
+      id: true,
+      name: true,
+      sales: {
+        where: {
+          occurredAt:
+            startOccurredAt || endOccurredAt
+              ? {
+                  gte: startOccurredAt || undefined,
+                  lte: endOccurredAt || undefined,
+                }
+              : undefined,
+        },
+      },
+    },
+  });
+
+  const productTotalsSales: Map<string, number> = new Map();
+
+  for (const product of products) {
+    const totalSales = product.sales.reduce(
+      (acc, sale) => acc + sale.amount.toNumber(),
+      0
+    );
+    productTotalsSales.set(product.id, totalSales);
+  }
+
+  return products.map((product) => ({
+    productId: product.id,
+    productName: product.name,
+    totalSales: productTotalsSales.get(product.id) || 0,
+  }));
+}
+
+export async function getSalesTrendsForProducts(args?: {
+  productIds: string[];
+  startOccurredAt?: Date;
+  endOccurredAt?: Date;
+}) {}

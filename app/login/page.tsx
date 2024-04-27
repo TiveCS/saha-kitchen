@@ -1,31 +1,15 @@
-import { signUpAction } from "@/actions/auth.action";
+import { getHasUser } from "@/actions/users.action";
+import { NewUserForm } from "@/components/NewUserForm";
 import { SignInForm } from "@/components/SignInForm";
-import { auth } from "@/lib/auth";
 
 export default async function LoginPage() {
-  const handleRegister = async () => {
-    "use server";
-
-    await signUpAction({
-      name: "Jamet",
-      username: "jamet",
-      password: "password",
-      confirmPassword: "password",
-      role: "ADMIN",
-    });
-  };
-
-  const session = await auth();
+  const hasUser = await getHasUser();
 
   return (
-    <>
-      <p>{session?.user.name || "Unauthed"}</p>
-
-      <SignInForm />
-
-      <form action={handleRegister}>
-        <button type="submit">Register</button>
-      </form>
-    </>
+    <section className="flex-1 ">
+      <div className="max-w-sm mx-auto mt-32">
+        {hasUser ? <SignInForm /> : <NewUserForm />}
+      </div>
+    </section>
   );
 }
