@@ -6,6 +6,7 @@ import { SignInSchemaType, SignUpSchemaType } from "@/schemas/auth.schema";
 import { Prisma, UserRole } from "@prisma/client";
 import * as argon2 from "argon2";
 import { getHasUser } from "./users.action";
+import { revalidatePath } from "next/cache";
 
 export async function signUpAction({
   name,
@@ -40,6 +41,8 @@ export async function signUpAction({
       },
       select: { id: true, username: true, role: true },
     });
+
+    revalidatePath("/login");
 
     return "User created successfully";
   } catch (error) {
