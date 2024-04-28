@@ -1,6 +1,10 @@
 "use client";
 
-import { getTotalSalesForProducts } from "@/actions/products.action";
+import {
+  getAvailableSalesTrendsYears,
+  getSalesTrendsForProducts,
+  getTotalSalesForProducts,
+} from "@/actions/products.action";
 import {
   deleteSales,
   editSales,
@@ -133,6 +137,31 @@ export function useGetTotalSalesForProducts({
         startOccurredAt,
         endOccurredAt,
       });
+    },
+  });
+}
+
+export function useGetSalesTrendsForProducts(args: {
+  productIds: string[];
+  year?: number;
+}) {
+  return useQuery({
+    queryKey: ["sales-trends", args.productIds, args.year],
+    queryFn: async () => {
+      const availableYears = await getAvailableSalesTrendsYears({
+        productIds: args.productIds,
+      });
+
+      let trends = null;
+
+      if (args.year) {
+        trends = await getSalesTrendsForProducts({
+          productIds: args.productIds,
+          year: args.year,
+        });
+      }
+
+      return { availableYears, trends };
     },
   });
 }

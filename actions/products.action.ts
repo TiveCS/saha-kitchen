@@ -10,7 +10,10 @@ import {
 } from "@/schemas/product.schema";
 import { StockStatus } from "@/types/app.type";
 import { GetProductByIdResult } from "@/types/product.type";
-import { ProductTotalSalesAnalytics } from "@/types/sales.type";
+import {
+  ProductTotalSalesAnalytics,
+  ProductTrendAnalyticsResult,
+} from "@/types/sales.type";
 import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { revalidatePath } from "next/cache";
@@ -338,8 +341,67 @@ export async function getTotalSalesForProducts({
   }));
 }
 
-export async function getSalesTrendsForProducts(args?: {
+export async function getAvailableSalesTrendsYears(args: {
   productIds: string[];
-  startOccurredAt?: Date;
-  endOccurredAt?: Date;
-}) {}
+}): Promise<number[]> {
+  const session = await auth();
+
+  if (!session) return redirect("/login");
+
+  const sales = await prisma.sales.findMany({
+    where: { productId: { in: args.productIds } },
+    select: {
+      occurredAt: true,
+    },
+  });
+
+  const years = Array.from(
+    new Set(sales.map((sale) => sale.occurredAt.getFullYear()))
+  );
+
+  return years;
+}
+
+export async function getSalesTrendsForProducts(args: {
+  productIds: string[];
+  year: number;
+}): Promise<ProductTrendAnalyticsResult> {
+  const session = await auth();
+
+  if (!session) return redirect("/login");
+
+  const products = await prisma.product.findMany({
+    where: { id: { in: args.productIds } },
+    select: {
+      id: true,
+      name: true,
+      sales: {
+        where: {
+          occurredAt: {
+            gte: new Date(args.year, 0, 1),
+            lte: new Date(args.year, 11, 31),
+          },
+        },
+      },
+    },
+  });
+
+  const result: ProductTrendAnalyticsResult = new Map();
+
+  products.forEach((product) => {
+    const monthlySales: number[] = Array(12).fill(undefined);
+
+    product.sales.forEach((sale) => {
+      monthlySales[sale.occurredAt.getMonth()] =
+        sale.amount.toNumber() +
+        (monthlySales[sale.occurredAt.getMonth()] ?? 0);
+    });
+
+    result.set(product.id, {
+      productName: product.name,
+      monthlySales,
+    });
+  });
+
+  return result;
+}

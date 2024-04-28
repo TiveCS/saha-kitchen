@@ -5,6 +5,7 @@ import { AnalyticsProductSelector } from "./AnalyticsProductSelector";
 import { useState } from "react";
 import { AnalyticsTotalSales } from "./AnalyticsSales";
 import { Card, CardBody, Selection } from "@nextui-org/react";
+import { AnalyticsSalesTrends } from "./AnalyticsSalesTrends";
 
 interface AnalyticsSectionProps {
   products: GetProductsMany;
@@ -12,7 +13,12 @@ interface AnalyticsSectionProps {
 
 export function AnalyticsSection({ products }: AnalyticsSectionProps) {
   const [selectedProducts, setSelectedProducts] = useState<Selection>(
-    new Set()
+    new Set(
+      products
+        .map((product) => product?.id)
+        .filter((id) => id !== undefined)
+        .slice(0, 4)
+    )
   );
 
   return (
@@ -25,9 +31,11 @@ export function AnalyticsSection({ products }: AnalyticsSectionProps) {
         />
       </section>
 
-      <Card id="top-area" className="h-64">
-        <CardBody className="grid grid-cols-3 gap-x-6">
+      <Card id="top-area" className="h-[17rem]">
+        <CardBody className="grid grid-cols-3 items-center gap-x-6">
           <AnalyticsTotalSales selectedProducts={selectedProducts} />
+
+          <AnalyticsSalesTrends selectedProducts={selectedProducts} />
         </CardBody>
       </Card>
     </>

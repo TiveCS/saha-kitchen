@@ -17,3 +17,10 @@ export type ProductTotalSalesAnalytics = {
   totalSales: number;
   latestStock: number;
 };
+
+export type ProductTrendAnalytics = {
+  productName: string;
+  monthlySales: number[];
+};
+
+export type ProductTrendAnalyticsResult = Map<string, ProductTrendAnalytics>;
