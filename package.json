@@ -18,6 +18,7 @@
     "argon2": "^0.40.1",
     "autoprefixer": "10.4.19",
     "chart.js": "^4.4.2",
+    "decimal.js": "^10.4.3",
     "framer-motion": "^11.1.7",
     "next": "latest",
     "next-auth": "^5.0.0-beta.16",

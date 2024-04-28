@@ -15,4 +15,5 @@ export type ProductTotalSalesAnalytics = {
   productId: string;
   productName: string;
   totalSales: number;
+  latestStock: number;
 };

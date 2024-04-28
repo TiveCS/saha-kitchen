@@ -2,6 +2,8 @@
 
 import { useGetTotalSalesForProducts } from "@/queries/sales.query";
 import { Selection, Skeleton } from "@nextui-org/react";
+import { Decimal } from "decimal.js";
+import { useMemo } from "react";
 import { Bar } from "react-chartjs-2";
 
 interface AnalyticsTotalSalesProps {
@@ -11,11 +13,31 @@ interface AnalyticsTotalSalesProps {
 export function AnalyticsTotalSales({
   selectedProducts,
 }: AnalyticsTotalSalesProps) {
-  const { data, isLoading, isPending } = useGetTotalSalesForProducts({
+  const {
+    data: productsSales,
+    isLoading,
+    isPending,
+  } = useGetTotalSalesForProducts({
     productIds: Array.from(selectedProducts).map((id) => id.toString()),
   });
 
-  if (!data || isLoading || isPending)
+  const soldProductPercentage: Map<string, Decimal> = useMemo(() => {
+    const result = new Map<string, Decimal>();
+    if (!productsSales) return result;
+
+    productsSales.forEach((product) => {
+      const totalSalesDec = new Decimal(product.totalSales);
+      const latestStockDec = new Decimal(product.latestStock);
+
+      const percentage = totalSalesDec.div(latestStockDec).times(100);
+
+      result.set(product.productId, percentage);
+    });
+
+    return result;
+  }, [productsSales]);
+
+  if (!productsSales || isLoading || isPending)
     return (
       <>
         <Skeleton className="bg-default-300 rounded-md h-full w-full" />
@@ -23,7 +45,7 @@ export function AnalyticsTotalSales({
       </>
     );
 
-  if (data.length === 0) {
+  if (productsSales.length === 0) {
     return (
       <>
         <div className="flex items-center justify-center h-full w-full border border-default-200 rounded-md">
@@ -44,11 +66,11 @@ export function AnalyticsTotalSales({
 
         <Bar
           data={{
-            labels: data.map((d) => d.productName),
+            labels: productsSales.map((d) => d.productName),
             datasets: [
               {
                 label: "Total Penjualan",
-                data: data.map((d) => d.totalSales),
+                data: productsSales.map((d) => d.totalSales),
                 backgroundColor: "rgba(53, 162, 235, 0.5)",
               },
             ],
@@ -64,10 +86,12 @@ export function AnalyticsTotalSales({
 
         <Bar
           data={{
-            labels: data.map((d) => d.productName),
+            labels: productsSales.map((d) => d.productName),
             datasets: [
               {
-                data: data.map((d) => d.totalSales),
+                data: productsSales.map(
+                  (d) => soldProductPercentage.get(d.productId)?.toNumber() || 0
+                ),
                 backgroundColor: "#f9a8d4",
               },
             ],
@@ -77,6 +101,15 @@ export function AnalyticsTotalSales({
             indexAxis: "y",
             plugins: {
               legend: { display: false },
+            },
+            scales: {
+              x: {
+                min: 0,
+                max: 100,
+                ticks: {
+                  callback: (value) => `${value}%`,
+                },
+              },
             },
           }}
         />

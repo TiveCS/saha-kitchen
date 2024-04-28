@@ -11,7 +11,7 @@ export default async function AnalyticsPage() {
       <DashboardLinkSetter
         links={[
           {
-            label: "Dashboard Analisis",
+            label: "Dashboard Analytics",
             href: "/analytics",
           },
         ]}

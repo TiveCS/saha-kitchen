@@ -10,6 +10,7 @@ import {
 } from "@/schemas/product.schema";
 import { StockStatus } from "@/types/app.type";
 import { GetProductByIdResult } from "@/types/product.type";
+import { ProductTotalSalesAnalytics } from "@/types/sales.type";
 import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { revalidatePath } from "next/cache";
@@ -273,3 +274,72 @@ export async function deleteProductStockHistory(id: string) {
     throw error;
   }
 }
+
+export async function getTotalSalesForProducts({
+  startOccurredAt,
+  endOccurredAt,
+  productIds,
+}: {
+  productIds: string[];
+  startOccurredAt?: Date;
+  endOccurredAt?: Date;
+}): Promise<ProductTotalSalesAnalytics[]> {
+  const session = await auth();
+
+  if (!session) return redirect("/login");
+
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    select: {
+      id: true,
+      name: true,
+      stockHistories: {
+        orderBy: { createdAt: "desc" },
+        where: {
+          createdAt:
+            startOccurredAt || endOccurredAt
+              ? {
+                  gte: startOccurredAt || undefined,
+                  lte: endOccurredAt || undefined,
+                }
+              : undefined,
+        },
+        take: 1,
+      },
+      sales: {
+        where: {
+          occurredAt:
+            startOccurredAt || endOccurredAt
+              ? {
+                  gte: startOccurredAt || undefined,
+                  lte: endOccurredAt || undefined,
+                }
+              : undefined,
+        },
+      },
+    },
+  });
+
+  const productTotalsSales: Map<string, number> = new Map();
+
+  for (const product of products) {
+    const totalSales = product.sales.reduce(
+      (acc, sale) => acc + sale.amount.toNumber(),
+      0
+    );
+    productTotalsSales.set(product.id, totalSales);
+  }
+
+  return products.map((product) => ({
+    productId: product.id,
+    productName: product.name,
+    totalSales: productTotalsSales.get(product.id) || 0,
+    latestStock: product.stockHistories[0]?.currentStock.toNumber() || 0,
+  }));
+}
+
+export async function getSalesTrendsForProducts(args?: {
+  productIds: string[];
+  startOccurredAt?: Date;
+  endOccurredAt?: Date;
+}) {}

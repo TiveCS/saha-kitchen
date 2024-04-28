@@ -1,11 +1,11 @@
 "use client";
 
+import { getTotalSalesForProducts } from "@/actions/products.action";
 import {
   deleteSales,
   editSales,
   getSales,
   getSalesById,
-  getTotalSalesForProducts,
   newSales,
 } from "@/actions/sales.action";
 import {
