@@ -72,7 +72,7 @@ export default async function ProductDetailsPage({
               </Card>
             </div>
 
-            <NewProductStockHistoryModal productId={product.id} />
+            <NewProductStockHistoryModal product={product} />
           </div>
 
           <ProductDetailTabs product={product} />

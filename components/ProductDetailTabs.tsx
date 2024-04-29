@@ -9,6 +9,7 @@ import Loading from "@/app/(dashboard)/loading";
 import { EditProductStockHistoryModal } from "./EditProductStockHistoryModal";
 import { ProductStockHistoryTableCell } from "./ProductStockHistoryTableCell";
 import { DeleteProductStockHistoryModal } from "./DeleteProductStockHistoryModal";
+import { ProductDetailsMaterialsTab } from "./ProductDetailMaterialsTab";
 
 type StockHistoryKeys = keyof ProductStockHistory | "action";
 
@@ -125,6 +126,10 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
     >
       <Tab key="stock_history" title="Riwayat Stok">
         <ProductDetailStockTab product={product} />
+      </Tab>
+
+      <Tab key="materials" title="Bahan Baku">
+        <ProductDetailsMaterialsTab product={product} />
       </Tab>
     </Tabs>
   );

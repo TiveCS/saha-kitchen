@@ -32,3 +32,12 @@ export type NewProductStockHistorySchemaType = z.infer<
 export type EditProductStockHistorySchemaType = z.infer<
   typeof EditProductStockHistorySchema
 >;
+
+export const NewProductMaterialSchema = z.object({
+  productId: z.string().cuid(),
+  materialId: z.string().cuid(),
+});
+
+export type NewProductMaterialSchemaType = z.infer<
+  typeof NewProductMaterialSchema
+>;

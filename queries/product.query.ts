@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  addProductMaterials,
   deleteProduct,
   deleteProductStockHistory,
   editProduct,
@@ -9,6 +10,7 @@ import {
   getProducts,
   newProduct,
   newProductStockHistory,
+  removeProductMaterials,
 } from "@/actions/products.action";
 import {
   EditProductSchemaType,
@@ -132,6 +134,38 @@ export function useEditProductStockHistory() {
     mutationKey: ["edit-stock-history"],
     mutationFn: async (data: EditProductStockHistorySchemaType) =>
       await editProductStockHistory(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["products"],
+      });
+    },
+  });
+}
+
+export function useAddProductMaterials() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["add-product-materials"],
+    mutationFn: async (data: { productId: string; materialIds: string[] }) => {
+      return await addProductMaterials(data);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["products"],
+      });
+    },
+  });
+}
+
+export function useRemoveProductMaterials() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["remove-product-materials"],
+    mutationFn: async (data: { productId: string; materialIds: string[] }) => {
+      return await removeProductMaterials(data);
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["products"],

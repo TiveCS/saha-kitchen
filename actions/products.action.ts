@@ -71,6 +71,10 @@ export async function editProduct(data: EditProductSchemaType) {
     },
   });
 
+  revalidatePath(`/products/${data.id}`);
+  revalidatePath("/products");
+  revalidatePath("/analytics");
+
   return product;
 }
 
@@ -85,6 +89,9 @@ export async function deleteProduct(id: string) {
     where: { id },
     select: { id: true, name: true },
   });
+
+  revalidatePath("/products");
+  revalidatePath("/analytics");
 
   return product;
 }
@@ -155,6 +162,18 @@ export async function getProductById(
   const product = await prisma.product.findUnique({
     where: { id },
     include: {
+      materials: {
+        select: {
+          id: true,
+          name: true,
+          minimumStock: true,
+          unit: true,
+          stockHistories: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+          },
+        },
+      },
       stockHistories: {
         orderBy: { createdAt: "desc" },
         select: {
@@ -177,6 +196,21 @@ export async function getProductById(
     name: product.name,
     price: product.price.toNumber(),
     minimumStock: product.minimumStock.toNumber(),
+    materials: product.materials.map((material) => {
+      const stock = material.stockHistories[0]?.currentStock || new Decimal(0);
+      const stockStatus = stock.gte(material.minimumStock)
+        ? StockStatus.OK
+        : StockStatus.RESTOCK;
+
+      return {
+        id: material.id,
+        name: material.name,
+        minimumStock: material.minimumStock.toNumber(),
+        currentStock: stock.toNumber(),
+        unit: material.unit,
+        stockStatus: stockStatus,
+      };
+    }),
     stockHistories: product.stockHistories.map((history, index) => {
       return {
         index: index + 1,
@@ -206,6 +240,8 @@ export async function newProductStockHistory(
     });
 
     revalidatePath(`/products/${data.product_id}`);
+    revalidatePath("/products");
+    revalidatePath("/analytics");
 
     return {
       id: stockHistory.id,
@@ -238,6 +274,8 @@ export async function editProductStockHistory(
     });
 
     revalidatePath(`/products/${stockHistory.productId}`);
+    revalidatePath("/products");
+    revalidatePath("/analytics");
 
     return {
       id: stockHistory.id,
@@ -266,12 +304,74 @@ export async function deleteProductStockHistory(id: string) {
     });
 
     revalidatePath(`/products/${stockHistory.productId}`);
+    revalidatePath("/products");
+    revalidatePath("/analytics");
 
     return stockHistory;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
         throw new Error("Riwayat stok tidak ditemukan");
+      }
+    }
+    throw error;
+  }
+}
+
+export async function addProductMaterials(args: {
+  productId: string;
+  materialIds: string[];
+}) {
+  const session = await auth();
+
+  if (!session) return redirect("/login");
+
+  try {
+    await prisma.product.update({
+      where: { id: args.productId },
+      data: {
+        materials: {
+          connect: args.materialIds.map((id) => ({ id })),
+        },
+      },
+    });
+
+    revalidatePath(`/products/${args.productId}`);
+    revalidatePath("/analytics");
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Produk tidak ditemukan");
+      }
+    }
+    throw error;
+  }
+}
+
+export async function removeProductMaterials(args: {
+  productId: string;
+  materialIds: string[];
+}) {
+  const session = await auth();
+
+  if (!session) return redirect("/login");
+
+  try {
+    await prisma.product.update({
+      where: { id: args.productId },
+      data: {
+        materials: {
+          disconnect: args.materialIds.map((id) => ({ id })),
+        },
+      },
+    });
+
+    revalidatePath(`/products/${args.productId}`);
+    revalidatePath("/analytics");
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Produk tidak ditemukan");
       }
     }
     throw error;

@@ -44,6 +44,8 @@ model Product {
   stockHistories ProductStockHistory[]
   sales          Sales[]
 
+  materials Material[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -75,6 +77,8 @@ model Material {
   unit         MaterialUnit
 
   stockHistories MaterialStockHistory[]
+
+  products Product[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
