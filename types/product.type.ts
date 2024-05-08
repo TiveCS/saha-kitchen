@@ -37,3 +37,16 @@ export type ProductDetail = {
 };
 
 export type GetProductByIdResult = ProductDetail | null;
+
+export type ProductMaterialStockAnalytic = {
+  materialId: string;
+  materialName: string;
+  minimumStock: number;
+  currentStock: number;
+  percentage: number;
+};
+
+export type ProductMaterialStockAnalyticsResult = {
+  productName: string;
+  stocks: ProductMaterialStockAnalytic[];
+} | null;

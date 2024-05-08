@@ -7,6 +7,7 @@ import {
   editProduct,
   editProductStockHistory,
   getProductById,
+  getProductMaterialsStockAnalytics,
   getProducts,
   newProduct,
   newProductStockHistory,
@@ -169,6 +170,32 @@ export function useRemoveProductMaterials() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["products"],
+      });
+    },
+  });
+}
+
+export function useGetProductMaterialsStock({
+  productId,
+  startPeriodDate,
+  endPeriodDate,
+}: {
+  productId: string;
+  startPeriodDate?: Date;
+  endPeriodDate?: Date;
+}) {
+  return useQuery({
+    queryKey: [
+      "product-materials-stock",
+      productId,
+      startPeriodDate,
+      endPeriodDate,
+    ],
+    queryFn: async () => {
+      return await getProductMaterialsStockAnalytics({
+        productId,
+        startPeriodDate,
+        endPeriodDate,
       });
     },
   });

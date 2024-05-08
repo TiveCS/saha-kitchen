@@ -9,7 +9,10 @@ import {
   NewProductStockHistorySchemaType,
 } from "@/schemas/product.schema";
 import { StockStatus } from "@/types/app.type";
-import { GetProductByIdResult } from "@/types/product.type";
+import {
+  GetProductByIdResult,
+  ProductMaterialStockAnalyticsResult,
+} from "@/types/product.type";
 import {
   ProductTotalSalesAnalytics,
   ProductTrendAnalyticsResult,
@@ -504,4 +507,58 @@ export async function getSalesTrendsForProducts(args: {
   });
 
   return result;
+}
+
+export async function getProductMaterialsStockAnalytics(args: {
+  productId: string;
+  startPeriodDate?: Date;
+  endPeriodDate?: Date;
+}): Promise<ProductMaterialStockAnalyticsResult> {
+  const product = await prisma.product.findUnique({
+    where: { id: args.productId },
+    include: {
+      materials: {
+        select: {
+          id: true,
+          name: true,
+          minimumStock: true,
+          stockHistories: {
+            orderBy: { createdAt: "desc" },
+            where: {
+              createdAt:
+                args.startPeriodDate || args.endPeriodDate
+                  ? {
+                      gte: args.startPeriodDate || undefined,
+                      lte: args.endPeriodDate || undefined,
+                    }
+                  : undefined,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!product) return null;
+
+  const stocksData = product.materials.map((material) => {
+    const currentStock = material.stockHistories[0]?.currentStock || 0;
+
+    const percentage = currentStock
+      .div(material.minimumStock.times(2))
+      .times(100);
+
+    return {
+      materialId: material.id,
+      materialName: material.name,
+      minimumStock: material.minimumStock.toNumber(),
+      currentStock: currentStock.toNumber(),
+      percentage: percentage.toNumber(),
+    };
+  });
+
+  return {
+    productName: product.name,
+    stocks: stocksData,
+  };
 }

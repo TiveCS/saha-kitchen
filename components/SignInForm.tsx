@@ -22,7 +22,7 @@ export function SignInForm() {
   const onSubmit = async (data: SignInSchemaType) => {
     await signIn("credentials", {
       ...data,
-      callbackUrl: "/products",
+      callbackUrl: "/analytics",
     });
   };
 

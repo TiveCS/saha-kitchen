@@ -1,10 +1,11 @@
 "use client";
 
 import { GetProductsMany } from "@/types/product.type";
-import { AnalyticsProductSelector } from "./AnalyticsProductSelector";
-import { useState } from "react";
-import { AnalyticsTotalSales } from "./AnalyticsSales";
 import { Card, CardBody, Selection } from "@nextui-org/react";
+import { useState } from "react";
+import { AnalyticsProductSelector } from "./AnalyticsProductSelector";
+import { AnalyticsProductStockSection } from "./AnalyticsProductStockSection";
+import { AnalyticsTotalSales } from "./AnalyticsSales";
 import { AnalyticsSalesTrends } from "./AnalyticsSalesTrends";
 
 interface AnalyticsSectionProps {
@@ -31,13 +32,23 @@ export function AnalyticsSection({ products }: AnalyticsSectionProps) {
         />
       </section>
 
-      <Card id="top-area" className="h-[17rem]">
-        <CardBody className="grid grid-cols-3 items-center gap-x-6">
-          <AnalyticsTotalSales selectedProducts={selectedProducts} />
+      <div className="flex flex-col gap-y-2">
+        <Card id="top-area" className="h-[18rem]">
+          <CardBody className="grid grid-cols-3 items-center gap-x-6">
+            <AnalyticsTotalSales selectedProducts={selectedProducts} />
 
-          <AnalyticsSalesTrends selectedProducts={selectedProducts} />
-        </CardBody>
-      </Card>
+            <AnalyticsSalesTrends selectedProducts={selectedProducts} />
+          </CardBody>
+        </Card>
+
+        <div className="grid grid-cols-5 gap-x-6 min-h-[32rem] py-4">
+          <Card className="col-span-2">
+            <CardBody>test</CardBody>
+          </Card>
+
+          <AnalyticsProductStockSection selectedProducts={selectedProducts} />
+        </div>
+      </div>
     </>
   );
 }
