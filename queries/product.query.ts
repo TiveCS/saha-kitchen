@@ -220,6 +220,8 @@ export function useGetProductsAvailabilityAnalytics({
       endPeriodDate,
     ],
     queryFn: async () => {
+      if (!startPeriodDate || !endPeriodDate) return null;
+
       return await getProductsAvailabilityAnalytics({
         productIds,
         startPeriodDate,

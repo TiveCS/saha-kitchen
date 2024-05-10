@@ -15,7 +15,7 @@ export default async function DashboardLayout({
       <div className="flex-1 w-full flex flex-col">
         <DashboardNavbar />
 
-        <section className="flex-1 flex flex-col bg-gray-100 dark:bg-background">
+        <section className="flex-1 flex flex-col bg-orange-50 dark:bg-background">
           <Suspense fallback={<Loading />}>{children}</Suspense>
         </section>
       </div>

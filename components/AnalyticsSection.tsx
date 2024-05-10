@@ -71,6 +71,8 @@ export function AnalyticsSection({ products }: AnalyticsSectionProps) {
         <div className="grid grid-cols-5 gap-x-6 min-h-[32rem] py-4">
           <AnalyticsProductAvailabilitySection
             selectedProducts={selectedProducts}
+            startPeriodDate={startPeriod}
+            endPeriodDate={endPeriod}
           />
 
           <AnalyticsProductMaterialStockSection

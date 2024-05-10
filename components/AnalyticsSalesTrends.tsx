@@ -56,17 +56,6 @@ export function AnalyticsSalesTrends({
       year: selectedYear ? Number(Array.from(selectedYear)[0]) : undefined,
     });
 
-  useEffect(() => {
-    if (!data) {
-      setSelectedYear(new Set());
-      return;
-    }
-
-    if (data.availableYears.length > 0) {
-      setSelectedYear(new Set([data.availableYears[0]]));
-    }
-  }, [data, data?.availableYears]);
-
   if (!data || isLoading || isPending || isFetching) {
     return <Skeleton className="bg-default-200 rounded-md h-full w-full" />;
   }
@@ -116,6 +105,9 @@ export function AnalyticsSalesTrends({
             }}
             options={{
               responsive: true,
+              interaction: {
+                mode: "index",
+              },
               plugins: {
                 legend: {
                   position: "top",

@@ -1,16 +1,19 @@
 "use client";
 
 import { useGetProductsAvailabilityAnalytics } from "@/queries/product.query";
-import { getLocalTimeZone, today } from "@internationalized/date";
+import { getListWeeksOfMonth, toCalendarDate } from "@/utils/calendar-date";
+import { formatReadableDate, formatReadableDateMonth } from "@/utils/formatter";
+import { getLocalTimeZone } from "@internationalized/date";
 import {
   Card,
   CardBody,
   CardHeader,
-  DateRangePicker,
-  Selection,
+  Select,
+  SelectItem,
   Skeleton,
+  type Selection,
 } from "@nextui-org/react";
-import { CalendarDots } from "@phosphor-icons/react";
+import { useMemo, useState } from "react";
 import { Bar } from "react-chartjs-2";
 
 interface AnalyticsProductAvailabilitySectionProps {
@@ -28,10 +31,26 @@ export function AnalyticsProductAvailabilitySection({
     productId.toString()
   );
 
+  const [selectedWeek, setSelectedWeek] = useState<Selection>(new Set());
+
+  const weeks = useMemo(() => {
+    if (!startPeriodDate) return;
+
+    return getListWeeksOfMonth(toCalendarDate(startPeriodDate));
+  }, [startPeriodDate]);
+
+  const selectedPeriod = useMemo(() => {
+    if (!weeks || weeks.length === 0) return;
+
+    return weeks.find((week) => {
+      return Array.from(selectedWeek).includes(week.label);
+    });
+  }, [selectedWeek, weeks]);
+
   const { data, isLoading } = useGetProductsAvailabilityAnalytics({
     productIds,
-    startPeriodDate,
-    endPeriodDate,
+    startPeriodDate: selectedPeriod?.start.toDate(getLocalTimeZone()),
+    endPeriodDate: selectedPeriod?.end.toDate(getLocalTimeZone()),
   });
 
   if (isLoading) {
@@ -44,13 +63,36 @@ export function AnalyticsProductAvailabilitySection({
         <div className="gap-y-4 flex flex-col flex-1 mb-4">
           <h6>Grafik Persediaan Produk</h6>
 
-          <DateRangePicker
-            label="Periode"
+          <Select
+            label="Pilihan Minggu"
+            placeholder="Pilih periode dalam minggu"
+            items={weeks ?? []}
+            isDisabled={!weeks || weeks.length === 0}
+            selectedKeys={selectedWeek}
             size="sm"
-            fullWidth
-            maxValue={today(getLocalTimeZone())}
-            selectorIcon={<CalendarDots className="w-5 h-5" />}
-          />
+            labelPlacement="outside"
+            onSelectionChange={(keys) => {
+              setSelectedWeek(keys);
+            }}
+            selectionMode="single"
+          >
+            {(item) => {
+              const { label } = item;
+              const formattedStart = formatReadableDate(
+                item.start.toDate(getLocalTimeZone())
+              );
+              const formattedEnd = formatReadableDate(
+                item.end.toDate(getLocalTimeZone())
+              );
+              const displayLabel = `${label} - (${formattedStart} - ${formattedEnd})`;
+
+              return (
+                <SelectItem key={label} value={label}>
+                  {displayLabel}
+                </SelectItem>
+              );
+            }}
+          </Select>
         </div>
       </CardHeader>
 

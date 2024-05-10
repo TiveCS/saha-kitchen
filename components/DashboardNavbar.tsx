@@ -17,7 +17,7 @@ export async function DashboardNavbar() {
   };
 
   return (
-    <nav className="px-8 py-4 w-full flex flex-row justify-between items-center bg-gray-100 dark:bg-background">
+    <nav className="px-8 py-4 w-full flex flex-row justify-between items-center bg-orange-50 dark:bg-background">
       <div>
         <DashboardBreadcrumbs />
       </div>

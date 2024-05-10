@@ -35,7 +35,7 @@ export function getListWeeksOfMonth(
 
   while (startWeek.compare(endMonth) < 0) {
     result.push({ label: `Minggu ${week}`, start: startWeek, end: endWeek });
-    startWeek = startWeek.add({ days: 1 });
+    startWeek = startWeek.add({ weeks: 1 });
     endWeek = startWeek.add({ days: 6 });
     week++;
 

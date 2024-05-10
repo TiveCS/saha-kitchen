@@ -25,11 +25,19 @@ import { Decimal } from "@prisma/client/runtime/library";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
+  getCumulativeProductsStockAtDate,
   getMaterialStockAtDate,
   getMaterialsStockAtDate,
   getProductStockAtDate,
   getProductsStockAtDate,
+  getProductsStockInPeriod,
 } from "./stock.action";
+import {
+  getProductsSalesInPeriod,
+  getProductsTotalSalesUntilDate,
+  getTotalSalesUntilDate,
+} from "./sales.action";
+import { toCalendarDate } from "@/utils/calendar-date";
 
 export async function newProduct(data: NewProductSchemaType) {
   const session = await auth();
@@ -576,60 +584,56 @@ export async function getProductMaterialsStockAnalytics(args: {
   };
 }
 
-export async function getProductsAvailabilityAnalytics(args: {
+export async function getProductsAvailabilityAnalytics({
+  productIds,
+  startPeriodDate,
+  endPeriodDate,
+}: {
   productIds: string[];
-  startPeriodDate?: Date;
-  endPeriodDate?: Date;
+  startPeriodDate: Date;
+  endPeriodDate: Date;
 }): Promise<ProductsAvailabilityResult> {
   const products = await prisma.product.findMany({
-    where: {
-      id: { in: args.productIds },
-    },
+    where: { id: { in: productIds } },
     select: {
       id: true,
       name: true,
       minimumStock: true,
-      stockHistories: {
-        orderBy: { occurredAt: "desc" },
-        where: {
-          createdAt:
-            args.startPeriodDate || args.endPeriodDate
-              ? {
-                  gte: args.startPeriodDate || undefined,
-                  lte: args.endPeriodDate || undefined,
-                }
-              : undefined,
-        },
-      },
-      sales: {
-        where: {
-          occurredAt:
-            args.startPeriodDate || args.endPeriodDate
-              ? {
-                  gte: args.startPeriodDate || undefined,
-                  lte: args.endPeriodDate || undefined,
-                }
-              : undefined,
-        },
-      },
     },
   });
 
+  const beforeStartCalendar = toCalendarDate(startPeriodDate).subtract({
+    days: 1,
+  });
+
+  const cumulativeStocks = await getCumulativeProductsStockAtDate(
+    productIds,
+    beforeStartCalendar?.toDate(getLocalTimeZone())
+  );
+
+  const stockData = await getProductsStockInPeriod(productIds, {
+    start: startPeriodDate,
+    end: endPeriodDate,
+  });
+
+  const salesData = await getProductsSalesInPeriod(productIds, {
+    start: startPeriodDate,
+    end: endPeriodDate,
+  });
+
   return products.map((product) => {
-    const latestStock =
-      product.stockHistories[0]?.currentStock || new Decimal(0);
-    const sales = product.sales.reduce(
-      (acc, sale) => acc.add(sale.amount),
-      new Decimal(0)
-    );
-    const currentStock = latestStock.minus(sales);
+    const cumulativeStock = cumulativeStocks.get(product.id)?.latestStock ?? 0;
+    const stock = stockData.get(product.id)?.stock ?? 0;
+    const sales = salesData.get(product.id) ?? 0;
+
+    const latestStock = cumulativeStock + stock;
 
     return {
       productId: product.id,
       productName: product.name,
-      latestStock: latestStock.toNumber(),
-      sales: sales.toNumber(),
-      currentStock: currentStock.toNumber(),
+      latestStock,
+      sales,
+      currentStock: latestStock - sales,
     };
   });
 }

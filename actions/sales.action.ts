@@ -200,6 +200,32 @@ export async function getTotalSalesUntilDate(
   return result.toNumber();
 }
 
+export async function getProductsTotalSalesUntilDate(
+  productIds: string[],
+  endDate?: Date
+): Promise<Map<string, number>> {
+  const result: Map<string, number> = new Map();
+
+  const sales = await prisma.sales.findMany({
+    orderBy: { occurredAt: "desc" },
+    where: {
+      productId: { in: productIds },
+      occurredAt: endDate ? { lte: endDate } : undefined,
+    },
+    select: {
+      productId: true,
+      amount: true,
+    },
+  });
+
+  sales.forEach((sale) => {
+    const currentTotal = new Decimal(result.get(sale.productId) ?? 0);
+    result.set(sale.productId, currentTotal.add(sale.amount).toNumber());
+  });
+
+  return result;
+}
+
 export async function getAvailableSalesCount({
   productId,
   occurredAt,
@@ -221,4 +247,43 @@ export async function getAvailableSalesCount({
   const availableSales = stock.latestStock - totalSales;
 
   return availableSales;
+}
+
+export async function getProductSalesInPeriod(
+  productId: string,
+  period: { start: Date; end: Date }
+): Promise<number> {
+  const sales = await prisma.sales.findMany({
+    orderBy: { occurredAt: "desc" },
+    where: {
+      productId,
+      occurredAt: {
+        gte: period.start,
+        lte: period.end,
+      },
+    },
+  });
+
+  let result = new Decimal(0);
+
+  sales.forEach((sale) => {
+    result = result.add(sale.amount);
+  });
+
+  return result.toNumber();
+}
+
+export async function getProductsSalesInPeriod(
+  productIds: string[],
+  period: { start: Date; end: Date }
+): Promise<Map<string, number>> {
+  const result: Map<string, number> = new Map();
+
+  for (const productId of productIds) {
+    const sales = await getProductSalesInPeriod(productId, period);
+
+    result.set(productId, sales);
+  }
+
+  return result;
 }
