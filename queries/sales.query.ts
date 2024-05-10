@@ -8,6 +8,7 @@ import {
 import {
   deleteSales,
   editSales,
+  getAvailableSalesCount,
   getSales,
   getSalesById,
   newSales,
@@ -75,10 +76,7 @@ export function useNewSales() {
   return useMutation({
     mutationKey: ["new-sales"],
     mutationFn: async (data: NewSalesSchemaType) => {
-      await newSales({
-        ...data,
-        occurred_at: data.occurred_at.toDate(getLocalTimeZone()),
-      });
+      await newSales(data);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
@@ -93,11 +91,7 @@ export function useEditSales() {
 
   return useMutation({
     mutationKey: ["edit-sales"],
-    mutationFn: async (data: EditSalesSchemaType) =>
-      await editSales({
-        ...data,
-        occurred_at: data.occurred_at.toDate(getLocalTimeZone()),
-      }),
+    mutationFn: async (data: EditSalesSchemaType) => await editSales(data),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["sales"],
@@ -162,6 +156,19 @@ export function useGetSalesTrendsForProducts(args: {
       }
 
       return { availableYears, trends };
+    },
+  });
+}
+
+export function useGetAvailableSalesCount(
+  productId: string,
+  occurredAt?: Date
+) {
+  return useQuery({
+    queryKey: ["sales-count", productId, occurredAt],
+    queryFn: async () => {
+      if (!occurredAt) return 0;
+      return await getAvailableSalesCount({ productId, occurredAt });
     },
   });
 }

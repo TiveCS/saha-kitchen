@@ -60,8 +60,9 @@ model ProductStockHistory {
   reporter   User @relation(fields: [reporterId], references: [id], onUpdate: Cascade)
   reporterId Int
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  occurredAt DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 enum MaterialUnit {
@@ -94,8 +95,9 @@ model MaterialStockHistory {
   reporter   User @relation(fields: [reporterId], references: [id], onUpdate: Cascade)
   reporterId Int
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  occurredAt DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 enum PurchaseSystem {

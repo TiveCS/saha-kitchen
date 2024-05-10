@@ -9,6 +9,8 @@ import {
   getProductById,
   getProductMaterialsStockAnalytics,
   getProducts,
+  getProductsAvailabilityAnalytics,
+  getProductsFirstAndLastStockHistoryDate,
   newProduct,
   newProductStockHistory,
   removeProductMaterials,
@@ -197,6 +199,41 @@ export function useGetProductMaterialsStock({
         startPeriodDate,
         endPeriodDate,
       });
+    },
+  });
+}
+
+export function useGetProductsAvailabilityAnalytics({
+  productIds,
+  startPeriodDate,
+  endPeriodDate,
+}: {
+  productIds: string[];
+  startPeriodDate?: Date;
+  endPeriodDate?: Date;
+}) {
+  return useQuery({
+    queryKey: [
+      "product-availability-analytics",
+      productIds,
+      startPeriodDate,
+      endPeriodDate,
+    ],
+    queryFn: async () => {
+      return await getProductsAvailabilityAnalytics({
+        productIds,
+        startPeriodDate,
+        endPeriodDate,
+      });
+    },
+  });
+}
+
+export function useGetAvailableProductMonths(productIds: string[]) {
+  return useQuery({
+    queryKey: ["available-product-months", productIds],
+    queryFn: async () => {
+      return await getProductsFirstAndLastStockHistoryDate(productIds);
     },
   });
 }

@@ -20,12 +20,9 @@ export const BaseSalesMutationSchema = z.object({
     invalid_type_error: "Sistem pembelian tidak valid",
     required_error: "Sistem pembelian tidak boleh kosong",
   }),
-  occurred_at: z
-    .custom<CalendarDate>()
-    .refine((value) => value.compare(today(getLocalTimeZone())) <= 0, {
-      message: "Tanggal penjualan maksimal hari ini",
-      path: ["occurred_at"],
-    }),
+  occurred_at: z.date({
+    required_error: "Tanggal penjualan tidak boleh kosong",
+  }),
 });
 
 export const BaseSalesMutationActionSchema = BaseSalesMutationSchema.extend({

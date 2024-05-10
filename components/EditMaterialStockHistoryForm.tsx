@@ -10,7 +10,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { FormInputNumber } from "./ui/FormInput";
+import { FormDatePicker, FormInputNumber } from "./ui/FormInput";
+import { getLocalTimeZone, today } from "@internationalized/date";
 
 interface EditMaterialStockFormProps {
   stock: MaterialStockHistory;
@@ -27,6 +28,7 @@ export function EditMaterialStockHistoryForm({
       defaultValues: {
         id: stock.id,
         current_stock: stock.currentStock,
+        occurred_at: stock.occurredAt,
       },
     });
 
@@ -55,6 +57,16 @@ export function EditMaterialStockHistoryForm({
         inputProps={{
           label: "Stok Saat Ini",
           placeholder: "Masukkan stok saat ini",
+          variant: "bordered",
+        }}
+      />
+
+      <FormDatePicker
+        control={control}
+        name="occurred_at"
+        datePickerProps={{
+          label: "Tanggal Riwayat Stok",
+          maxValue: today(getLocalTimeZone()),
           variant: "bordered",
         }}
       />

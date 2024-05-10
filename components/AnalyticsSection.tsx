@@ -1,10 +1,19 @@
 "use client";
 
 import { GetProductsMany } from "@/types/product.type";
-import { Card, CardBody, Selection } from "@nextui-org/react";
+import { getLocalTimeZone } from "@internationalized/date";
+import {
+  Card,
+  CardBody,
+  DateValue,
+  RangeValue,
+  Selection,
+} from "@nextui-org/react";
 import { useState } from "react";
+import { AnalyticsMonthSelector } from "./AnalyticsMonthSelector";
+import { AnalyticsProductAvailabilitySection } from "./AnalyticsProductAvailabilitySection";
+import { AnalyticsProductMaterialStockSection } from "./AnalyticsProductMaterialsStockSection";
 import { AnalyticsProductSelector } from "./AnalyticsProductSelector";
-import { AnalyticsProductStockSection } from "./AnalyticsProductStockSection";
 import { AnalyticsTotalSales } from "./AnalyticsSales";
 import { AnalyticsSalesTrends } from "./AnalyticsSalesTrends";
 
@@ -22,31 +31,51 @@ export function AnalyticsSection({ products }: AnalyticsSectionProps) {
     )
   );
 
+  const [period, setPeriod] = useState<RangeValue<DateValue> | null>(null);
+
+  const startPeriod = period?.start.toDate(getLocalTimeZone());
+  const endPeriod = period?.end.toDate(getLocalTimeZone());
+
   return (
     <>
-      <section id="product-selector" className="mb-6">
+      <section
+        id="product-selector"
+        className="mb-6 flex flex-row items-center gap-x-8"
+      >
         <AnalyticsProductSelector
           products={products}
           selectedProducts={selectedProducts}
           setSelectedProducts={setSelectedProducts}
         />
+
+        <AnalyticsMonthSelector
+          selectedProducts={selectedProducts}
+          period={period}
+          setPeriod={setPeriod}
+        />
       </section>
 
       <div className="flex flex-col gap-y-2">
-        <Card id="top-area" className="h-[18rem]">
+        <Card id="top-area">
           <CardBody className="grid grid-cols-3 items-center gap-x-6">
-            <AnalyticsTotalSales selectedProducts={selectedProducts} />
+            <AnalyticsTotalSales
+              selectedProducts={selectedProducts}
+              startOccurredDate={startPeriod}
+              endOccurredDate={endPeriod}
+            />
 
             <AnalyticsSalesTrends selectedProducts={selectedProducts} />
           </CardBody>
         </Card>
 
         <div className="grid grid-cols-5 gap-x-6 min-h-[32rem] py-4">
-          <Card className="col-span-2">
-            <CardBody>test</CardBody>
-          </Card>
+          <AnalyticsProductAvailabilitySection
+            selectedProducts={selectedProducts}
+          />
 
-          <AnalyticsProductStockSection selectedProducts={selectedProducts} />
+          <AnalyticsProductMaterialStockSection
+            selectedProducts={selectedProducts}
+          />
         </div>
       </div>
     </>

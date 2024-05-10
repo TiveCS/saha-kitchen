@@ -12,11 +12,13 @@ import { StockStatus } from "@/types/app.type";
 import {
   GetProductByIdResult,
   ProductMaterialStockAnalyticsResult,
+  ProductsAvailabilityResult,
 } from "@/types/product.type";
 import {
   ProductTotalSalesAnalytics,
   ProductTrendAnalyticsResult,
 } from "@/types/sales.type";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { revalidatePath } from "next/cache";
@@ -38,6 +40,7 @@ export async function newProduct(data: NewProductSchemaType) {
         create: {
           currentStock: data.initial_stock,
           reporter: { connect: { id: session.user.id } },
+          occurredAt: today(getLocalTimeZone()).toDate(getLocalTimeZone()),
         },
       },
     },
@@ -121,7 +124,7 @@ export async function getProducts(args?: { page?: number; take?: number }) {
             currentStock: true,
           },
           orderBy: {
-            createdAt: "desc",
+            occurredAt: "desc",
           },
           take: 1,
         },
@@ -172,17 +175,18 @@ export async function getProductById(
           minimumStock: true,
           unit: true,
           stockHistories: {
-            orderBy: { createdAt: "desc" },
+            orderBy: { occurredAt: "desc" },
             take: 1,
           },
         },
       },
       stockHistories: {
-        orderBy: { createdAt: "desc" },
+        orderBy: { occurredAt: "desc" },
         select: {
           id: true,
           currentStock: true,
           createdAt: true,
+          occurredAt: true,
           reporter: {
             select: { name: true },
           },
@@ -218,8 +222,9 @@ export async function getProductById(
       return {
         index: index + 1,
         id: history.id,
-        currentStock: history.currentStock.toNumber(),
+        occurredAt: history.occurredAt,
         createdAt: history.createdAt,
+        currentStock: history.currentStock.toNumber(),
         reporter: history.reporter.name,
       };
     }),
@@ -239,6 +244,7 @@ export async function newProductStockHistory(
         currentStock: data.current_stock,
         reporter: { connect: { id: session.user.id } },
         product: { connect: { id: data.product_id } },
+        occurredAt: data.occurred_at,
       },
     });
 
@@ -273,6 +279,7 @@ export async function editProductStockHistory(
       where: { id: data.id },
       data: {
         currentStock: data.current_stock,
+        occurredAt: data.occurred_at,
       },
     });
 
@@ -400,7 +407,7 @@ export async function getTotalSalesForProducts({
       id: true,
       name: true,
       stockHistories: {
-        orderBy: { createdAt: "desc" },
+        orderBy: { occurredAt: "desc" },
         where: {
           createdAt:
             startOccurredAt || endOccurredAt
@@ -523,7 +530,7 @@ export async function getProductMaterialsStockAnalytics(args: {
           name: true,
           minimumStock: true,
           stockHistories: {
-            orderBy: { createdAt: "desc" },
+            orderBy: { occurredAt: "desc" },
             where: {
               createdAt:
                 args.startPeriodDate || args.endPeriodDate
@@ -560,5 +567,122 @@ export async function getProductMaterialsStockAnalytics(args: {
   return {
     productName: product.name,
     stocks: stocksData,
+  };
+}
+
+export async function getProductsAvailabilityAnalytics(args: {
+  productIds: string[];
+  startPeriodDate?: Date;
+  endPeriodDate?: Date;
+}): Promise<ProductsAvailabilityResult> {
+  const products = await prisma.product.findMany({
+    where: {
+      id: { in: args.productIds },
+    },
+    select: {
+      id: true,
+      name: true,
+      minimumStock: true,
+      stockHistories: {
+        orderBy: { occurredAt: "desc" },
+        where: {
+          createdAt:
+            args.startPeriodDate || args.endPeriodDate
+              ? {
+                  gte: args.startPeriodDate || undefined,
+                  lte: args.endPeriodDate || undefined,
+                }
+              : undefined,
+        },
+      },
+      sales: {
+        where: {
+          occurredAt:
+            args.startPeriodDate || args.endPeriodDate
+              ? {
+                  gte: args.startPeriodDate || undefined,
+                  lte: args.endPeriodDate || undefined,
+                }
+              : undefined,
+        },
+      },
+    },
+  });
+
+  return products.map((product) => {
+    const latestStock =
+      product.stockHistories[0]?.currentStock || new Decimal(0);
+    const sales = product.sales.reduce(
+      (acc, sale) => acc.add(sale.amount),
+      new Decimal(0)
+    );
+    const currentStock = latestStock.minus(sales);
+
+    return {
+      productId: product.id,
+      productName: product.name,
+      latestStock: latestStock.toNumber(),
+      sales: sales.toNumber(),
+      currentStock: currentStock.toNumber(),
+    };
+  });
+}
+
+export async function getProductsFirstAndLastStockHistoryDate(
+  productIds: string[]
+): Promise<{
+  firstDate: Date;
+  latestDate: Date;
+} | null> {
+  const stockHistories = await prisma.productStockHistory.findMany({
+    where: { productId: { in: productIds } },
+    orderBy: { occurredAt: "desc" },
+    select: {
+      occurredAt: true,
+    },
+  });
+
+  if (stockHistories.length === 0) return null;
+
+  const firstDate = stockHistories[stockHistories.length - 1].occurredAt;
+  const latestDate = stockHistories[0].occurredAt;
+
+  return {
+    firstDate,
+    latestDate,
+  };
+}
+
+/**
+ * Mendapatkan jumlah stok terbaru sebelum `occurredAt`
+ *
+ * @param args `productId` dan `occurredAt`
+ * @returns
+ */
+export async function getProductStock({
+  productId,
+  occurredAt,
+}: {
+  productId: string;
+  occurredAt: Date;
+}): Promise<{ currentStock: number; occurredAt: Date | null }> {
+  const earlierStock = await prisma.productStockHistory.findFirst({
+    orderBy: { occurredAt: "desc" },
+    where: {
+      productId: productId,
+      occurredAt: { lte: occurredAt },
+    },
+    select: {
+      occurredAt: true,
+      currentStock: true,
+    },
+  });
+
+  // Jika stok sebelum occurredAt tidak ada, tidak mungkin bisa melakukan penjualan
+  if (!earlierStock) return { currentStock: 0, occurredAt: null };
+
+  return {
+    currentStock: earlierStock.currentStock.toNumber(),
+    occurredAt: earlierStock.occurredAt,
   };
 }

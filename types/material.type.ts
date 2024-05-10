@@ -21,6 +21,7 @@ export type MaterialStockHistory = {
   id: string;
   currentStock: number;
   createdAt: Date;
+  occurredAt: Date;
   reporter: string;
 };
 

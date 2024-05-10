@@ -42,11 +42,7 @@ export function EditSalesForm({ id }: EditSalesFormProps) {
         return {
           id: result.id,
           amount: result.amount,
-          occurred_at: new CalendarDate(
-            result.occurredAt.getFullYear(),
-            result.occurredAt.getMonth() + 1,
-            result.occurredAt.getDate()
-          ),
+          occurred_at: result.occurredAt,
           purchase_system: result.purchaseSystem,
           product_id: result.productId,
         };

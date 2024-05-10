@@ -1,3 +1,4 @@
+import { CalendarDate, getLocalTimeZone } from "@internationalized/date";
 import { z } from "zod";
 
 export const NewProductSchema = z.object({
@@ -19,6 +20,7 @@ export type EditProductSchemaType = z.infer<typeof EditProductSchema>;
 export const NewProductStockHistorySchema = z.object({
   product_id: z.string().cuid(),
   current_stock: z.number().nonnegative(),
+  occurred_at: z.date(),
 });
 
 export const EditProductStockHistorySchema = NewProductStockHistorySchema.omit({

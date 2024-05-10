@@ -24,8 +24,8 @@ function ProductDetailStockTab({ product }: ProductDetailStockTabProps) {
       label: "NO",
     },
     {
-      key: "createdAt",
-      label: "TANGGAL PENCATATAN",
+      key: "occurredAt",
+      label: "STOK PADA TANGGAL",
     },
     {
       key: "currentStock",
@@ -63,7 +63,7 @@ function ProductDetailStockTab({ product }: ProductDetailStockTabProps) {
   }: DataTableHandleCellValueArgs<ProductStockHistory>): any => {
     if (typeof value === "number") value = formatNumber(value);
 
-    if (key === "createdAt") value = formatReadableDate(value);
+    if (key === "occurredAt") value = formatReadableDate(value);
 
     if (key === "action")
       return (

@@ -20,7 +20,7 @@ export function EditMaterialStockHistoryModal({
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader>Tambah Riwayat Stok</ModalHeader>
+            <ModalHeader>Ubah Riwayat Stok</ModalHeader>
             <ModalBody>
               {stock && (
                 <EditMaterialStockHistoryForm

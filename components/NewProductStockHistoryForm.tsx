@@ -14,9 +14,10 @@ import {
   ModalHeader,
 } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
-import { FormInputNumber } from "./ui/FormInput";
+import { FormDatePicker, FormInputNumber } from "./ui/FormInput";
 import { useNewProductStockHistory } from "@/queries/product.query";
 import { toast } from "sonner";
+import { getLocalTimeZone, today } from "@internationalized/date";
 
 interface NewProductStockHistoryFormProps {
   productId: string;
@@ -33,6 +34,7 @@ export function NewProductStockHistoryForm({
       defaultValues: {
         product_id: productId,
         current_stock: 0,
+        occurred_at: today(getLocalTimeZone()).toDate(getLocalTimeZone()),
       },
     });
 
@@ -61,6 +63,16 @@ export function NewProductStockHistoryForm({
         inputProps={{
           label: "Stok Saat Ini",
           placeholder: "Masukkan stok saat ini",
+          variant: "bordered",
+        }}
+      />
+
+      <FormDatePicker
+        control={control}
+        name="occurred_at"
+        datePickerProps={{
+          label: "Tanggal Riwayat Stok",
+          maxValue: today(getLocalTimeZone()),
           variant: "bordered",
         }}
       />

@@ -10,6 +10,7 @@ import {
 } from "@/schemas/material.schema";
 import { StockStatus } from "@/types/app.type";
 import { MaterialDetail } from "@/types/material.type";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { revalidatePath } from "next/cache";
@@ -31,6 +32,7 @@ export async function newMaterial(data: NewMaterialSchemaType) {
         create: {
           currentStock: data.initial_stock,
           reporter: { connect: { id: session.user.id } },
+          occurredAt: today(getLocalTimeZone()).toDate(getLocalTimeZone()),
         },
       },
     },
@@ -93,7 +95,7 @@ export async function getMaterials(args?: { page?: number; take?: number }) {
             currentStock: true,
           },
           orderBy: {
-            createdAt: "desc",
+            occurredAt: "desc",
           },
           take: 1,
         },
@@ -141,12 +143,13 @@ export async function getMaterialById(
       updatedAt: true,
       stockHistories: {
         orderBy: {
-          createdAt: "desc",
+          occurredAt: "desc",
         },
         select: {
           id: true,
           currentStock: true,
           createdAt: true,
+          occurredAt: true,
           reporter: { select: { name: true } },
         },
       },
@@ -165,6 +168,7 @@ export async function getMaterialById(
       id: stockHistory.id,
       currentStock: stockHistory.currentStock.toNumber(),
       createdAt: stockHistory.createdAt,
+      occurredAt: stockHistory.occurredAt,
       reporter: stockHistory.reporter.name,
     })),
     createdAt: material.createdAt,
@@ -229,6 +233,7 @@ export async function newMaterialStockHistory(
       currentStock: data.current_stock,
       material: { connect: { id: data.material_id } },
       reporter: { connect: { id: session.user.id } },
+      occurredAt: data.occurred_at,
     },
   });
 
@@ -256,6 +261,7 @@ export async function editMaterialStockHistory(
       where: { id: data.id },
       data: {
         currentStock: data.current_stock,
+        occurredAt: data.occurred_at,
       },
     });
 

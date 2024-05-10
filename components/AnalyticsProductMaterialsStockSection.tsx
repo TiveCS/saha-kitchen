@@ -1,27 +1,20 @@
 "use client";
 
 import { useGetProductMaterialsStock } from "@/queries/product.query";
-import { ProductMaterialStockAnalytic } from "@/types/product.type";
-import {
-  Card,
-  CardBody,
-  ScrollShadow,
-  Selection,
-  Skeleton,
-} from "@nextui-org/react";
-import { Bar, Chart } from "react-chartjs-2";
+import { Card, CardBody, Selection, Skeleton } from "@nextui-org/react";
+import { Chart } from "react-chartjs-2";
 
-interface AnalyticsProductStockSectionProps {
+interface AnalyticsProductMaterialStockProps {
   selectedProducts: Selection;
 }
 
-export function AnalyticsProductStockSection({
+export function AnalyticsProductMaterialStockSection({
   selectedProducts,
-}: AnalyticsProductStockSectionProps) {
+}: AnalyticsProductMaterialStockProps) {
   return (
     <div className="col-span-3 grid grid-cols-2 gap-4">
       {Array.from(selectedProducts).map((productId) => (
-        <AnalyticsProductStock
+        <AnalyticsProductMaterialsStock
           key={productId}
           productId={productId.toString()}
         />
@@ -30,13 +23,13 @@ export function AnalyticsProductStockSection({
   );
 }
 
-interface AnalyticsProductStockProps {
+interface AnalyticsProductMaterialsStockProps {
   productId: string;
 }
 
-export function AnalyticsProductStock({
+export function AnalyticsProductMaterialsStock({
   productId,
-}: AnalyticsProductStockProps) {
+}: AnalyticsProductMaterialsStockProps) {
   const { data, isLoading } = useGetProductMaterialsStock({ productId });
 
   if (isLoading)

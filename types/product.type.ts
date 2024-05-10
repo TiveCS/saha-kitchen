@@ -14,6 +14,7 @@ export type ProductStockHistory = {
   id: string;
   currentStock: number;
   createdAt: Date;
+  occurredAt: Date;
   reporter: string;
 };
 
@@ -50,3 +51,13 @@ export type ProductMaterialStockAnalyticsResult = {
   productName: string;
   stocks: ProductMaterialStockAnalytic[];
 } | null;
+
+export type ProductAvailability = {
+  productId: string;
+  productName: string;
+  latestStock: number;
+  sales: number;
+  currentStock: number;
+};
+
+export type ProductsAvailabilityResult = ProductAvailability[] | null;

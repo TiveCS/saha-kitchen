@@ -2,15 +2,14 @@
 
 import Loading from "@/app/(dashboard)/loading";
 import { MaterialDetail, MaterialStockHistory } from "@/types/material.type";
-import { ProductDetail, ProductStockHistory } from "@/types/product.type";
+import { ProductStockHistory } from "@/types/product.type";
 import { formatNumber, formatReadableDate } from "@/utils/formatter";
 import { Tab, Tabs, useDisclosure } from "@nextui-org/react";
 import { Suspense, useState } from "react";
 import { DeleteMaterialStockHistoryModal } from "./DeleteMaterialStockHistoryModal";
-import { EditProductStockHistoryModal } from "./EditProductStockHistoryModal";
+import { EditMaterialStockHistoryModal } from "./EditMaterialStockHistoryModal";
 import { MaterialStockHistoryTableCell } from "./MaterialStockHistoryTableCell";
 import { DataTable, DataTableHandleCellValueArgs } from "./ui/DataTable";
-import { EditMaterialStockHistoryModal } from "./EditMaterialStockHistoryModal";
 
 type StockHistoryKeys = keyof ProductStockHistory | "action";
 
@@ -25,8 +24,8 @@ function MaterialDetailStockTab({ material }: MaterialDetailStockTabProps) {
       label: "NO",
     },
     {
-      key: "createdAt",
-      label: "TANGGAL PENCATATAN",
+      key: "occurredAt",
+      label: "STOK PADA TANGGAL",
     },
     {
       key: "currentStock",
@@ -64,7 +63,7 @@ function MaterialDetailStockTab({ material }: MaterialDetailStockTabProps) {
   }: DataTableHandleCellValueArgs<MaterialStockHistory>): any => {
     if (typeof value === "number") value = formatNumber(value);
 
-    if (key === "createdAt") value = formatReadableDate(value);
+    if (key === "occurredAt") value = formatReadableDate(value);
 
     if (key === "action")
       return (

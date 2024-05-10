@@ -8,10 +8,14 @@ import { Bar } from "react-chartjs-2";
 
 interface AnalyticsTotalSalesProps {
   selectedProducts: Selection;
+  startOccurredDate?: Date;
+  endOccurredDate?: Date;
 }
 
 export function AnalyticsTotalSales({
   selectedProducts,
+  startOccurredDate,
+  endOccurredDate,
 }: AnalyticsTotalSalesProps) {
   const {
     data: productsSales,
@@ -19,6 +23,8 @@ export function AnalyticsTotalSales({
     isPending,
   } = useGetTotalSalesForProducts({
     productIds: Array.from(selectedProducts).map((id) => id.toString()),
+    startOccurredAt: startOccurredDate,
+    endOccurredAt: endOccurredDate,
   });
 
   const soldProductPercentage: Map<string, Decimal> = useMemo(() => {
@@ -40,8 +46,8 @@ export function AnalyticsTotalSales({
   if (!productsSales || isLoading || isPending)
     return (
       <>
-        <Skeleton className="bg-default-300 rounded-md h-full w-full" />
-        <Skeleton className="bg-default-300 rounded-md h-full w-full" />
+        <Skeleton className="bg-default-200 rounded-md h-full w-full" />
+        <Skeleton className="bg-default-200 rounded-md h-full w-full" />
       </>
     );
 

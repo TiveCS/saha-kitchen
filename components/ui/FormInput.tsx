@@ -5,6 +5,12 @@ import {
   handleNumericInputDisplay,
 } from "@/utils/form";
 import {
+  getLocalTimeZone,
+  parseAbsolute,
+  parseDate,
+  toCalendarDate,
+} from "@internationalized/date";
+import {
   Autocomplete,
   AutocompleteItem,
   AutocompleteProps,
@@ -19,9 +25,12 @@ import { CalendarDots } from "@phosphor-icons/react";
 import { ReactNode } from "react";
 import {
   Controller,
+  ControllerFieldState,
+  ControllerRenderProps,
   FieldPath,
   FieldValues,
   UseControllerProps,
+  UseFormStateReturn,
 } from "react-hook-form";
 
 interface FormInputProps<
@@ -29,6 +38,7 @@ interface FormInputProps<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > extends UseControllerProps<TFieldValues, TName> {
   inputProps?: InputProps;
+  maxNumber?: number;
 }
 
 export function FormInput<
@@ -59,7 +69,7 @@ export function FormInput<
 export function FormInputNumber<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->({ inputProps, ...props }: FormInputProps<TFieldValues, TName>) {
+>({ inputProps, maxNumber, ...props }: FormInputProps<TFieldValues, TName>) {
   return (
     <Controller
       {...props}
@@ -68,7 +78,15 @@ export function FormInputNumber<
           <Input
             ref={field.ref}
             value={handleNumericInputDisplay(field.value)}
-            onValueChange={(v) => field.onChange(handleNumericInputChange(v))}
+            onValueChange={(v) => {
+              let num = handleNumericInputChange(v);
+
+              if (maxNumber && num > maxNumber) {
+                num = maxNumber;
+              }
+
+              field.onChange(num);
+            }}
             onBlur={field.onBlur}
             errorMessage={fieldState.error?.message}
             isInvalid={!!fieldState.error}
@@ -121,7 +139,17 @@ interface FormDatePickerProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > extends UseControllerProps<TFieldValues, TName> {
-  datePickerProps: DatePickerProps;
+  datePickerProps:
+    | DatePickerProps
+    | (({
+        field,
+        fieldState,
+        formState,
+      }: {
+        field: ControllerRenderProps<TFieldValues, TName>;
+        fieldState: ControllerFieldState;
+        formState: UseFormStateReturn<TFieldValues>;
+      }) => DatePickerProps);
 }
 
 export function FormDatePicker<
@@ -132,6 +160,11 @@ export function FormDatePicker<
     <Controller
       {...props}
       render={({ field, fieldState, formState }) => {
+        datePickerProps =
+          typeof datePickerProps === "function"
+            ? datePickerProps({ field, fieldState, formState })
+            : datePickerProps;
+
         return (
           <DatePicker
             {...field}
@@ -141,6 +174,19 @@ export function FormDatePicker<
             selectorIcon={<CalendarDots />}
             isDisabled={
               field.disabled || formState.isSubmitting || formState.isLoading
+            }
+            onChange={(value) =>
+              field.onChange(value.toDate(getLocalTimeZone()))
+            }
+            value={
+              field.value
+                ? toCalendarDate(
+                    parseAbsolute(
+                      (field.value as unknown as Date).toISOString(),
+                      getLocalTimeZone()
+                    )
+                  )
+                : undefined
             }
             {...datePickerProps}
           />

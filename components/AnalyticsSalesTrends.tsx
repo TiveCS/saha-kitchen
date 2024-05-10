@@ -14,14 +14,14 @@ const MonthLabel = {
   2: "Feb",
   3: "Mar",
   4: "Apr",
-  5: "May",
+  5: "Mei",
   6: "Jun",
   7: "Jul",
-  8: "Aug",
+  8: "Agu",
   9: "Sep",
-  10: "Oct",
+  10: "Okt",
   11: "Nov",
-  12: "Dec",
+  12: "Des",
 } as const;
 
 const AvailableColors: { border: string; background: string }[] = [
@@ -57,7 +57,7 @@ export function AnalyticsSalesTrends({
     });
 
   if (!data || isLoading || isPending || isFetching) {
-    return <Skeleton className="bg-default-300 rounded-md h-full w-full" />;
+    return <Skeleton className="bg-default-200 rounded-md h-full w-full" />;
   }
 
   return (

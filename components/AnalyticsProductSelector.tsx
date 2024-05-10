@@ -27,13 +27,17 @@ export function AnalyticsProductSelector({
         label="Pilihan Analisis Produk"
         placeholder="Pilih produk yang ingin dianalisis"
         selectedKeys={selectedProducts}
-        isMultiline
         onSelectionChange={setSelectedProducts}
         selectionMode="multiple"
-        className="max-w-md"
-        variant="bordered"
+        size="sm"
+        isMultiline
+        classNames={{
+          base: "max-w-md",
+          trigger: "bg-background shadow-small",
+          label: "pb-2",
+        }}
         renderValue={(selected: SelectedItems) => (
-          <div className="flex flex-wrap gap-2">
+          <div className="inline-flex flex-wrap gap-2">
             {selected.map((item) => {
               const product = products.find(
                 (p) => p.id === item.key?.toString()

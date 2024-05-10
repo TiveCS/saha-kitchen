@@ -77,6 +77,7 @@ export function NewProductMaterialForm({
           items: getMaterials.materials,
           isLoading: isPending || isLoading,
           disabledKeys: product.materials.map((material) => material.id),
+          variant: "bordered",
           children: getMaterials.materials.map((material) => {
             return (
               <SelectItem key={material.id} value={material.id}>

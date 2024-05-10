@@ -28,7 +28,7 @@ export function EditProductStockHistoryModal({
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader>Tambah Riwayat Stok</ModalHeader>
+            <ModalHeader>Ubah Riwayat Stok</ModalHeader>
             <ModalBody>
               {stock && (
                 <EditProductStockForm stock={stock} onSuccess={onClose} />

@@ -23,6 +23,7 @@
     "next": "latest",
     "next-auth": "^5.0.0-beta.16",
     "next-themes": "^0.3.0",
+    "nextui-cli": "^0.2.1",
     "postcss": "8.4.38",
     "react": "18.2.0",
     "react-chartjs-2": "^5.2.0",

@@ -40,19 +40,19 @@ export const NewMaterialStockHistorySchema = z.object({
     .number({ required_error: "Stok tidak boleh kosong" })
     .int("Stok harus berupa bilangan bulat")
     .nonnegative("Stok tidak boleh kurang dari 0"),
+  occurred_at: z.date({ required_error: "Tanggal tidak boleh kosong" }),
 });
 
-export const EditMaterialStockHistorySchema = z.object({
-  id: z
-    .string({
-      required_error: "ID riwayat stok tidak boleh kosong",
-    })
-    .cuid(),
-  current_stock: z
-    .number({ required_error: "Stok tidak boleh kosong" })
-    .int("Stok harus berupa bilangan bulat")
-    .nonnegative("Stok tidak boleh kurang dari 0"),
-});
+export const EditMaterialStockHistorySchema =
+  NewMaterialStockHistorySchema.omit({
+    material_id: true,
+  }).extend({
+    id: z
+      .string({
+        required_error: "ID riwayat stok tidak boleh kosong",
+      })
+      .cuid(),
+  });
 
 export type NewMaterialStockHistorySchemaType = z.infer<
   typeof NewMaterialStockHistorySchema
