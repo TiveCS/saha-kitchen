@@ -129,17 +129,7 @@ export async function getCumulativeProductStockAtDate(
   productId: string,
   endDate?: Date
 ): Promise<GetStockAtDateResult> {
-  const stockHistories = await prisma.productStockHistory.findMany({
-    orderBy: { occurredAt: "desc" },
-    where: {
-      productId,
-      occurredAt: endDate ? { lte: endDate } : undefined,
-    },
-    select: {
-      currentStock: true,
-      occurredAt: true,
-    },
-  });
+  const productStock = await getProductStockAtDate(productId, endDate);
 
   const salesHistories = await prisma.sales.findMany({
     orderBy: { occurredAt: "desc" },
@@ -153,20 +143,13 @@ export async function getCumulativeProductStockAtDate(
     },
   });
 
-  let result = new Decimal(0);
-
-  stockHistories.forEach((history) => {
-    result = result.add(history.currentStock);
-  });
+  let result = new Decimal(productStock.latestStock);
 
   salesHistories.forEach((sale) => {
     result = result.sub(sale.amount);
   });
 
-  const endStock =
-    stockHistories.length > 0
-      ? stockHistories[stockHistories.length - 1].occurredAt
-      : undefined;
+  const endStock = productStock.occurredAt;
   const endSale =
     salesHistories.length > 0
       ? salesHistories[salesHistories.length - 1].occurredAt
