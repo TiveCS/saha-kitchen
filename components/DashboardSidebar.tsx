@@ -1,6 +1,7 @@
 "use client";
 
-import { Listbox, ListboxItem, cn } from "@nextui-org/react";
+import NextImage from "next/image";
+import { Image, Listbox, ListboxItem, cn } from "@nextui-org/react";
 import {
   House,
   Lego,
@@ -25,12 +26,23 @@ export function DashboardSidebar() {
         width: "14rem",
       }}
     >
-      <header className="flex items-center justify-center font-medium">
-        <Link href="/analytics">Saha Kitchen</Link>
+      <header className="flex items-center justify-center font-medium row-span-2">
+        <Link href="/analytics">
+          <Image
+            as={NextImage}
+            src="/logo.png"
+            alt="Saha Kitchen"
+            width={312}
+            height={104}
+          />
+        </Link>
       </header>
 
       <Listbox
-        classNames={{ base: "row-span-7 px-4 py-6", list: "gap-y-4" }}
+        classNames={{
+          base: "row-span-6 px-4 py-6 overflow-y-auto",
+          list: "gap-y-4",
+        }}
         itemClasses={{ base: "gap-x-2.5" }}
         aria-label="Navigasi menu utama"
       >
@@ -84,10 +96,6 @@ export function DashboardSidebar() {
           Forecasting
         </ListboxItem>
       </Listbox>
-
-      <footer className="flex items-center justify-center">
-        <ThemeSwitcher />
-      </footer>
     </motion.div>
   );
 }
