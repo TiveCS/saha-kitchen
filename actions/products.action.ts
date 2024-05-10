@@ -11,6 +11,7 @@ import {
 import { StockStatus } from "@/types/app.type";
 import {
   GetProductByIdResult,
+  ProductMaterialStockAnalytic,
   ProductMaterialStockAnalyticsResult,
   ProductsAvailabilityResult,
 } from "@/types/product.type";
@@ -547,21 +548,27 @@ export async function getProductMaterialsStockAnalytics(args: {
 
   if (!product) return null;
 
-  const stocksData = product.materials.map((material) => {
-    const currentStock = material.stockHistories[0]?.currentStock || 0;
+  const materialsStocks = await getMaterialsStockAtDate(
+    product.materials.map((m) => m.id),
+    args.endPeriodDate
+  );
 
-    const percentage = currentStock
-      .div(material.minimumStock.times(2))
-      .times(100);
+  const stocksData: ProductMaterialStockAnalytic[] = product.materials.map(
+    (material) => {
+      const stock = materialsStocks.get(material.id);
 
-    return {
-      materialId: material.id,
-      materialName: material.name,
-      minimumStock: material.minimumStock.toNumber(),
-      currentStock: currentStock.toNumber(),
-      percentage: percentage.toNumber(),
-    };
-  });
+      const latestStock = new Decimal(stock?.latestStock ?? 0);
+      const percentage = latestStock.div(material.minimumStock).times(100);
+
+      return {
+        materialId: material.id,
+        materialName: material.name,
+        minimumStock: material.minimumStock.toNumber(),
+        currentStock: latestStock.toNumber(),
+        percentage: percentage.toNumber(),
+      };
+    }
+  );
 
   return {
     productName: product.name,
