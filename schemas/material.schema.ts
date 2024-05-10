@@ -36,10 +36,7 @@ export const NewMaterialStockHistorySchema = z.object({
   material_id: z
     .string({ required_error: "ID bahan baku tidak boleh kosong" })
     .cuid(),
-  current_stock: z
-    .number({ required_error: "Stok tidak boleh kosong" })
-    .int("Stok harus berupa bilangan bulat")
-    .nonnegative("Stok tidak boleh kurang dari 0"),
+  addition_stock: z.number({ required_error: "Stok tidak boleh kosong" }),
   occurred_at: z.date({ required_error: "Tanggal tidak boleh kosong" }),
 });
 

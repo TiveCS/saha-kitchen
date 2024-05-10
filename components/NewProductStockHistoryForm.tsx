@@ -1,23 +1,16 @@
 "use client";
 
+import { useNewProductStockHistory } from "@/queries/product.query";
 import {
   NewProductStockHistorySchema,
   NewProductStockHistorySchemaType,
 } from "@/schemas/product.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Button,
-  Card,
-  CardBody,
-  Modal,
-  ModalBody,
-  ModalHeader,
-} from "@nextui-org/react";
-import { useForm } from "react-hook-form";
-import { FormDatePicker, FormInputNumber } from "./ui/FormInput";
-import { useNewProductStockHistory } from "@/queries/product.query";
-import { toast } from "sonner";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { Button } from "@nextui-org/react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { FormDatePicker, FormInputNumber } from "./ui/FormInput";
 
 interface NewProductStockHistoryFormProps {
   productId: string;
@@ -33,7 +26,7 @@ export function NewProductStockHistoryForm({
       resolver: zodResolver(NewProductStockHistorySchema),
       defaultValues: {
         product_id: productId,
-        current_stock: 0,
+        addition_stock: 0,
         occurred_at: today(getLocalTimeZone()).toDate(getLocalTimeZone()),
       },
     });
@@ -59,11 +52,12 @@ export function NewProductStockHistoryForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <FormInputNumber
         control={control}
-        name="current_stock"
+        name="addition_stock"
         inputProps={{
-          label: "Stok Saat Ini",
-          placeholder: "Masukkan stok saat ini",
+          label: "Penambahan Stok",
+          placeholder: "Masukan penambahan stok",
           variant: "bordered",
+          description: 'Jika berkurang, masukkan angka negatif ("-")',
         }}
       />
 

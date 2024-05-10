@@ -19,7 +19,7 @@ export type EditProductSchemaType = z.infer<typeof EditProductSchema>;
 
 export const NewProductStockHistorySchema = z.object({
   product_id: z.string().cuid(),
-  current_stock: z.number().nonnegative(),
+  addition_stock: z.number(),
   occurred_at: z.date(),
 });
 

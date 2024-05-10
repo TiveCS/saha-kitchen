@@ -23,6 +23,12 @@ import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import {
+  getMaterialStockAtDate,
+  getMaterialsStockAtDate,
+  getProductStockAtDate,
+  getProductsStockAtDate,
+} from "./stock.action";
 
 export async function newProduct(data: NewProductSchemaType) {
   const session = await auth();
@@ -119,21 +125,18 @@ export async function getProducts(args?: { page?: number; take?: number }) {
         name: true,
         price: true,
         minimumStock: true,
-        stockHistories: {
-          select: {
-            currentStock: true,
-          },
-          orderBy: {
-            occurredAt: "desc",
-          },
-          take: 1,
-        },
       },
     }),
   ]);
 
+  const productStocks = await getProductsStockAtDate(
+    foundProducts.map((p) => p.id)
+  );
+
   const products = foundProducts.map((product, index) => {
-    const stock = product.stockHistories[0]?.currentStock || new Decimal(0);
+    const stockData = productStocks.get(product.id);
+
+    const stock = new Decimal(stockData?.latestStock || 0);
     const stockStatus: StockStatus = stock.gte(product.minimumStock)
       ? StockStatus.OK
       : StockStatus.RESTOCK;
@@ -174,10 +177,6 @@ export async function getProductById(
           name: true,
           minimumStock: true,
           unit: true,
-          stockHistories: {
-            orderBy: { occurredAt: "desc" },
-            take: 1,
-          },
         },
       },
       stockHistories: {
@@ -197,6 +196,10 @@ export async function getProductById(
 
   if (!product) return null;
 
+  const materialStocks = await getMaterialsStockAtDate(
+    product.materials.map((m) => m.id)
+  );
+
   return {
     id: product.id,
     createdAt: product.createdAt,
@@ -204,7 +207,9 @@ export async function getProductById(
     price: product.price.toNumber(),
     minimumStock: product.minimumStock.toNumber(),
     materials: product.materials.map((material) => {
-      const stock = material.stockHistories[0]?.currentStock || new Decimal(0);
+      const stockData = materialStocks.get(material.id);
+
+      const stock = new Decimal(stockData?.latestStock || 0);
       const stockStatus = stock.gte(material.minimumStock)
         ? StockStatus.OK
         : StockStatus.RESTOCK;
@@ -241,7 +246,7 @@ export async function newProductStockHistory(
   try {
     const stockHistory = await prisma.productStockHistory.create({
       data: {
-        currentStock: data.current_stock,
+        currentStock: data.addition_stock,
         reporter: { connect: { id: session.user.id } },
         product: { connect: { id: data.product_id } },
         occurredAt: data.occurred_at,
@@ -278,7 +283,7 @@ export async function editProductStockHistory(
     const stockHistory = await prisma.productStockHistory.update({
       where: { id: data.id },
       data: {
-        currentStock: data.current_stock,
+        currentStock: data.addition_stock,
         occurredAt: data.occurred_at,
       },
     });
@@ -401,54 +406,21 @@ export async function getTotalSalesForProducts({
 
   if (!session) return redirect("/login");
 
+  const productStocks = await Promise.all(
+    productIds.map((productId) => {
+      return getProductStockAtDate(productId, endOccurredAt);
+    })
+  );
+
   const products = await prisma.product.findMany({
     where: { id: { in: productIds } },
     select: {
       id: true,
       name: true,
-      stockHistories: {
-        orderBy: { occurredAt: "desc" },
-        where: {
-          createdAt:
-            startOccurredAt || endOccurredAt
-              ? {
-                  gte: startOccurredAt || undefined,
-                  lte: endOccurredAt || undefined,
-                }
-              : undefined,
-        },
-        take: 1,
-      },
-      sales: {
-        where: {
-          occurredAt:
-            startOccurredAt || endOccurredAt
-              ? {
-                  gte: startOccurredAt || undefined,
-                  lte: endOccurredAt || undefined,
-                }
-              : undefined,
-        },
-      },
     },
   });
 
-  const productTotalsSales: Map<string, number> = new Map();
-
-  for (const product of products) {
-    const totalSales = product.sales.reduce(
-      (acc, sale) => acc + sale.amount.toNumber(),
-      0
-    );
-    productTotalsSales.set(product.id, totalSales);
-  }
-
-  return products.map((product) => ({
-    productId: product.id,
-    productName: product.name,
-    totalSales: productTotalsSales.get(product.id) || 0,
-    latestStock: product.stockHistories[0]?.currentStock.toNumber() || 0,
-  }));
+  return [];
 }
 
 export async function getAvailableSalesTrendsYears(args: {
@@ -650,39 +622,5 @@ export async function getProductsFirstAndLastStockHistoryDate(
   return {
     firstDate,
     latestDate,
-  };
-}
-
-/**
- * Mendapatkan jumlah stok terbaru sebelum `occurredAt`
- *
- * @param args `productId` dan `occurredAt`
- * @returns
- */
-export async function getProductStock({
-  productId,
-  occurredAt,
-}: {
-  productId: string;
-  occurredAt: Date;
-}): Promise<{ currentStock: number; occurredAt: Date | null }> {
-  const earlierStock = await prisma.productStockHistory.findFirst({
-    orderBy: { occurredAt: "desc" },
-    where: {
-      productId: productId,
-      occurredAt: { lte: occurredAt },
-    },
-    select: {
-      occurredAt: true,
-      currentStock: true,
-    },
-  });
-
-  // Jika stok sebelum occurredAt tidak ada, tidak mungkin bisa melakukan penjualan
-  if (!earlierStock) return { currentStock: 0, occurredAt: null };
-
-  return {
-    currentStock: earlierStock.currentStock.toNumber(),
-    occurredAt: earlierStock.occurredAt,
   };
 }

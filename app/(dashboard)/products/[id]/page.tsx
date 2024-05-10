@@ -1,4 +1,5 @@
 import { getProductById } from "@/actions/products.action";
+import { getProductStockAtDate } from "@/actions/stock.action";
 import { EditProductStockHistoryModal } from "@/components/EditProductStockHistoryModal";
 import { NewProductStockHistoryModal } from "@/components/NewProductStockHistoryModal";
 import { ProductDetailTabs } from "@/components/ProductDetailTabs";
@@ -16,6 +17,7 @@ export default async function ProductDetailsPage({
   params: { id: string };
 }) {
   const product = await getProductById(params.id);
+  const getStock = await getProductStockAtDate(params.id);
 
   if (!product) return notFound();
 
@@ -50,7 +52,7 @@ export default async function ProductDetailsPage({
             <div className="flex flex-row gap-x-6">
               <Card className="w-fit mb-6">
                 <CardHeader>
-                  <h4 className="font-medium">{product.name}</h4>
+                  <h4 className="font-medium text-sm">{product.name}</h4>
                 </CardHeader>
                 <CardBody>
                   <p className="text-small">
@@ -60,12 +62,13 @@ export default async function ProductDetailsPage({
               </Card>
 
               <Card className="w-fit mb-6">
-                <CardHeader>
-                  <h4 className="font-medium">Status Stok</h4>
-                </CardHeader>
                 <CardBody>
+                  <h4 className="font-medium mb-2 text-sm">Status Stok</h4>
+
+                  <p className="text-lg font-bold">
+                    {formatNumber(getStock.latestStock)}
+                  </p>
                   <p className="text-small">
-                    {formatNumber(product.stockHistories[0]?.currentStock ?? 0)}{" "}
                     dari {formatNumber(product.minimumStock)} {" stok minimum"}
                   </p>
                 </CardBody>

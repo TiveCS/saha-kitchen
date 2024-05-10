@@ -26,7 +26,7 @@ export function NewMaterialStockHistoryForm({
       resolver: zodResolver(NewMaterialStockHistorySchema),
       defaultValues: {
         material_id: materialId,
-        current_stock: 0,
+        addition_stock: 0,
         occurred_at: today(getLocalTimeZone()).toDate(getLocalTimeZone()),
       },
     });
@@ -52,11 +52,12 @@ export function NewMaterialStockHistoryForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <FormInputNumber
         control={control}
-        name="current_stock"
+        name="addition_stock"
         inputProps={{
-          label: "Stok Saat Ini",
-          placeholder: "Masukkan stok saat ini",
+          label: "Penambahan Stok",
+          placeholder: "Masukan penambahan stok",
           variant: "bordered",
+          description: 'Jika berkurang, masukkan angka negatif ("-")',
         }}
       />
 

@@ -15,6 +15,7 @@ import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getMaterialsStockAtDate } from "./stock.action";
 
 export async function newMaterial(data: NewMaterialSchemaType) {
   const session = await auth();
@@ -90,21 +91,18 @@ export async function getMaterials(args?: { page?: number; take?: number }) {
         name: true,
         unit: true,
         minimumStock: true,
-        stockHistories: {
-          select: {
-            currentStock: true,
-          },
-          orderBy: {
-            occurredAt: "desc",
-          },
-          take: 1,
-        },
       },
     }),
   ]);
 
+  const materialStocks = await getMaterialsStockAtDate(
+    foundMaterials.map((m) => m.id)
+  );
+
   const materials = foundMaterials.map((material, index) => {
-    const stock = material.stockHistories[0]?.currentStock || new Decimal(0);
+    const stockData = materialStocks.get(material.id);
+
+    const stock = new Decimal(stockData?.latestStock ?? 0);
     const stockStatus: StockStatus = stock.gte(material.minimumStock)
       ? StockStatus.OK
       : StockStatus.RESTOCK;
@@ -230,7 +228,7 @@ export async function newMaterialStockHistory(
 
   const stockHistory = await prisma.materialStockHistory.create({
     data: {
-      currentStock: data.current_stock,
+      currentStock: data.addition_stock,
       material: { connect: { id: data.material_id } },
       reporter: { connect: { id: session.user.id } },
       occurredAt: data.occurred_at,
@@ -260,7 +258,7 @@ export async function editMaterialStockHistory(
     const stockHistory = await prisma.materialStockHistory.update({
       where: { id: data.id },
       data: {
-        currentStock: data.current_stock,
+        currentStock: data.addition_stock,
         occurredAt: data.occurred_at,
       },
     });

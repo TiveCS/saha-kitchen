@@ -1,4 +1,5 @@
 import { getMaterialById } from "@/actions/materials.action";
+import { getMaterialStockAtDate } from "@/actions/stock.action";
 import { MaterialDetailTabs } from "@/components/MaterialDetailTabs";
 import { NewMaterialStockHistoryModal } from "@/components/NewMaterialStockHistoryModal";
 import { DashboardLinkSetter } from "@/store/dashboard-links.store";
@@ -17,6 +18,8 @@ export default async function MaterialDetailPage({
   const material = await getMaterialById(params.id);
 
   if (!material) return notFound();
+
+  const stockData = await getMaterialStockAtDate(params.id);
 
   return (
     <>
@@ -59,15 +62,15 @@ export default async function MaterialDetailPage({
               </Card>
 
               <Card className="w-fit mb-6">
-                <CardHeader>
-                  <h4 className="font-medium">Status Stok</h4>
-                </CardHeader>
                 <CardBody>
+                  <h4 className="font-medium mb-2">Status Stok</h4>
+
+                  <p className="text-lg font-bold">
+                    {formatNumber(stockData.latestStock)}
+                  </p>
+
                   <p className="text-small">
-                    {formatNumber(
-                      material.stockHistories[0]?.currentStock ?? 0
-                    )}{" "}
-                    dari {formatNumber(material.minimumStock)} {" stok minimum"}
+                    dari {formatNumber(material.minimumStock)} stok minimum
                   </p>
                 </CardBody>
               </Card>

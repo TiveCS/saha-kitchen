@@ -6,7 +6,7 @@ import {
   EditSalesActionSchemaType,
   NewSalesActionSchemaType,
 } from "@/schemas/sales.schema";
-import { formatReadableDate } from "@/utils/formatter";
+import { toCalendarDate } from "@/utils/calendar-date";
 import {
   CalendarDate,
   getLocalTimeZone,
@@ -14,8 +14,7 @@ import {
 } from "@internationalized/date";
 import Decimal from "decimal.js";
 import { redirect } from "next/navigation";
-import { getProductStock } from "./products.action";
-import { toCalendarDate } from "@/utils/calendar-date";
+import { getProductStockAtDate } from "./stock.action";
 
 export async function newSales(data: NewSalesActionSchemaType) {
   const session = await auth();
@@ -212,7 +211,7 @@ export async function getAvailableSalesCount({
   // 20 Mei 2024 (tanggal stok tercatat sebelum occurredAt) - 30 Mei 2024 (riwayat stok setelah occurredAt terdekat)
   // Jika tidak ada riwayat stok setelah occuredAt, maka gunakan occurredAt sebagai tanggal terakhir
 
-  const earlierStock = await getProductStock({ productId, occurredAt });
+  const earlierStock = await getProductStockAtDate(productId, occurredAt);
 
   const afterStock = await prisma.productStockHistory.findFirst({
     orderBy: { occurredAt: "desc" },
@@ -257,7 +256,7 @@ export async function getAvailableSalesCount({
     new Decimal(0)
   );
 
-  const availableStock = new Decimal(earlierStock.currentStock).minus(
+  const availableStock = new Decimal(earlierStock.latestStock).minus(
     totalSales
   );
 

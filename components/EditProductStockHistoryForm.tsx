@@ -27,8 +27,8 @@ export function EditProductStockForm({
       resolver: zodResolver(EditProductStockHistorySchema),
       defaultValues: {
         id: stock.id,
-        current_stock: stock.currentStock,
-        occurred_at: stock.createdAt,
+        addition_stock: stock.currentStock,
+        occurred_at: stock.occurredAt,
       },
     });
 
@@ -53,11 +53,12 @@ export function EditProductStockForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <FormInputNumber
         control={control}
-        name="current_stock"
+        name="addition_stock"
         inputProps={{
-          label: "Stok Saat Ini",
-          placeholder: "Masukkan stok saat ini",
+          label: "Penambahan Stok",
+          placeholder: "Masukan penambahan stok",
           variant: "bordered",
+          description: 'Jika berkurang, masukkan angka negatif ("-")',
         }}
       />
 
