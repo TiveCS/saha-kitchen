@@ -56,6 +56,16 @@ export function AnalyticsMonthSelector({
         base: "max-w-sm",
         trigger: "bg-background shadow-small",
       }}
+      onSelectionChange={(selected) => {
+        const arr = Array.from(selected);
+        if (arr.length === 0) return setPeriod(null);
+
+        const period = periods.get(arr[0] as `${string} ${number}`);
+
+        if (!period) return;
+
+        setPeriod(period);
+      }}
     >
       {([key, item]) => (
         <SelectItem key={key} value={item.start.toString()}>

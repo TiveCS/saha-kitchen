@@ -406,21 +406,48 @@ export async function getTotalSalesForProducts({
 
   if (!session) return redirect("/login");
 
-  const productStocks = await Promise.all(
-    productIds.map((productId) => {
-      return getProductStockAtDate(productId, endOccurredAt);
-    })
-  );
+  const productStocks = await getProductsStockAtDate(productIds, endOccurredAt);
 
   const products = await prisma.product.findMany({
     where: { id: { in: productIds } },
     select: {
       id: true,
       name: true,
+      sales: {
+        orderBy: { occurredAt: "desc" },
+        select: {
+          amount: true,
+          occurredAt: true,
+        },
+        where: {
+          occurredAt:
+            startOccurredAt || endOccurredAt
+              ? {
+                  gte: startOccurredAt,
+                  lte: endOccurredAt,
+                }
+              : undefined,
+        },
+      },
     },
   });
 
-  return [];
+  return products.map((product) => {
+    const stockData = productStocks.get(product.id);
+    const latestStock = new Decimal(stockData?.latestStock ?? 0);
+    let totalSales = new Decimal(0);
+
+    product.sales.forEach((sale) => {
+      totalSales = totalSales.add(sale.amount);
+    });
+
+    return {
+      productId: product.id,
+      productName: product.name,
+      totalSales: totalSales.toNumber(),
+      latestStock: latestStock.toNumber(),
+    };
+  });
 }
 
 export async function getAvailableSalesTrendsYears(args: {

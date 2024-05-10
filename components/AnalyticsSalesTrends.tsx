@@ -2,7 +2,7 @@
 
 import { useGetSalesTrendsForProducts } from "@/queries/sales.query";
 import { Select, SelectItem, Selection, Skeleton } from "@nextui-org/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 
 interface AnalyticsSalesTrendsProps {
@@ -55,6 +55,17 @@ export function AnalyticsSalesTrends({
       productIds: Array.from(selectedProducts).map((id) => id.toString()),
       year: selectedYear ? Number(Array.from(selectedYear)[0]) : undefined,
     });
+
+  useEffect(() => {
+    if (!data) {
+      setSelectedYear(new Set());
+      return;
+    }
+
+    if (data.availableYears.length > 0) {
+      setSelectedYear(new Set([data.availableYears[0]]));
+    }
+  }, [data, data?.availableYears]);
 
   if (!data || isLoading || isPending || isFetching) {
     return <Skeleton className="bg-default-200 rounded-md h-full w-full" />;
@@ -112,6 +123,11 @@ export function AnalyticsSalesTrends({
                     boxWidth: 8,
                     boxHeight: 8,
                   },
+                },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
                 },
               },
             }}
