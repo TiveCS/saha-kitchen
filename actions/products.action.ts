@@ -628,6 +628,8 @@ export async function getProductsAvailabilityAnalytics({
 
     const latestStock = cumulativeStock + stock;
 
+    console.log({ cumulativeStock, stock, sales });
+
     return {
       productId: product.id,
       productName: product.name,

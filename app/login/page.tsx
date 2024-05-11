@@ -20,7 +20,7 @@ export default async function LoginPage() {
           />
         </div>
 
-        <div className="col-span-2 sticky top-1/3">
+        <div className="col-span-2 sticky top-1/4">
           {hasUser ? <SignInForm /> : <NewUserForm />}
         </div>
       </div>
