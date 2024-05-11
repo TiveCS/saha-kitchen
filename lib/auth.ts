@@ -13,7 +13,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(data, request) {
-        const res = await fetch(`${ORIGIN_URL}/api/auth/verify`, {
+        const originUrl = process.env.VERCEL_URL || process.env.AUTH_URL;
+        const res = await fetch(`${originUrl}/api/auth/verify`, {
           method: "POST",
           body: JSON.stringify(data),
           headers: { "Content-Type": "application/json" },

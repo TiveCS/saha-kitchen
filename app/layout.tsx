@@ -3,9 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const defaultUrl = ORIGIN_URL || "http://localhost:3000";
-
-console.log(ORIGIN_URL);
+const defaultUrl =
+  process.env.VERCEL_URL || process.env.AUTH_URL || "http://localhost:3000";
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
