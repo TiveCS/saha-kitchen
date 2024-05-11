@@ -1,5 +1,6 @@
 "use client";
 
+import { TIMEZONE } from "@/constants";
 import { useGetProducts } from "@/queries/product.query";
 import { useGetAvailableSalesCount, useNewSales } from "@/queries/sales.query";
 import {
@@ -9,7 +10,7 @@ import {
 import { GetProductsSingle } from "@/types/product.type";
 import { PurchaseSystemAbbreviation } from "@/types/sales.type";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { getLocalTimeZone, today } from "@internationalized/date";
+import { today } from "@internationalized/date";
 import { Button, Card, CardBody, Input, SelectItem } from "@nextui-org/react";
 import { PurchaseSystem } from "@prisma/client";
 import { useRouter } from "next/navigation";
@@ -29,7 +30,7 @@ export function NewSalesForm() {
       resolver: zodResolver(BaseSalesMutationSchema),
       defaultValues: {
         amount: 0,
-        occurred_at: today(getLocalTimeZone()).toDate(getLocalTimeZone()),
+        occurred_at: today(TIMEZONE).toDate(TIMEZONE),
       },
     });
 
@@ -132,7 +133,7 @@ export function NewSalesForm() {
             name="occurred_at"
             datePickerProps={{
               label: "Tanggal Penjualan",
-              maxValue: today(getLocalTimeZone()),
+              maxValue: today(TIMEZONE),
             }}
           />
 

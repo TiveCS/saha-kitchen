@@ -1,5 +1,6 @@
 "use server";
 
+import { TIMEZONE } from "@/constants";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import {
@@ -19,25 +20,19 @@ import {
   ProductTotalSalesAnalytics,
   ProductTrendAnalyticsResult,
 } from "@/types/sales.type";
-import { getLocalTimeZone, today } from "@internationalized/date";
+import { toCalendarDate } from "@/utils/calendar-date";
+import { today } from "@internationalized/date";
 import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getProductsSalesInPeriod } from "./sales.action";
 import {
   getCumulativeProductsStockAtDate,
-  getMaterialStockAtDate,
   getMaterialsStockAtDate,
-  getProductStockAtDate,
   getProductsStockAtDate,
   getProductsStockInPeriod,
 } from "./stock.action";
-import {
-  getProductsSalesInPeriod,
-  getProductsTotalSalesUntilDate,
-  getTotalSalesUntilDate,
-} from "./sales.action";
-import { toCalendarDate } from "@/utils/calendar-date";
 
 export async function newProduct(data: NewProductSchemaType) {
   const session = await auth();
@@ -55,7 +50,7 @@ export async function newProduct(data: NewProductSchemaType) {
         create: {
           currentStock: data.initial_stock,
           reporter: { connect: { id: session.user.id } },
-          occurredAt: today(getLocalTimeZone()).toDate(getLocalTimeZone()),
+          occurredAt: today(TIMEZONE).toDate(TIMEZONE),
         },
       },
     },
@@ -608,7 +603,7 @@ export async function getProductsAvailabilityAnalytics({
 
   const cumulativeStocks = await getCumulativeProductsStockAtDate(
     productIds,
-    beforeStartCalendar?.toDate(getLocalTimeZone())
+    beforeStartCalendar.toDate(TIMEZONE)
   );
 
   const stockData = await getProductsStockInPeriod(productIds, {

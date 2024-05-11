@@ -1,13 +1,14 @@
 "use client";
 
 import { getSalesById } from "@/actions/sales.action";
+import { TIMEZONE } from "@/constants";
 import { useGetProducts } from "@/queries/product.query";
 import { useEditSales } from "@/queries/sales.query";
 import { EditSalesSchema, EditSalesSchemaType } from "@/schemas/sales.schema";
 import { GetProductsSingle } from "@/types/product.type";
 import { PurchaseSystemAbbreviation } from "@/types/sales.type";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarDate, getLocalTimeZone, today } from "@internationalized/date";
+import { today } from "@internationalized/date";
 import {
   Button,
   Card,
@@ -154,8 +155,8 @@ export function EditSalesForm({ id }: EditSalesFormProps) {
               name="occurred_at"
               datePickerProps={{
                 label: "Tanggal Penjualan",
-                defaultValue: today(getLocalTimeZone()),
-                maxValue: today(getLocalTimeZone()),
+                defaultValue: today(TIMEZONE),
+                maxValue: today(TIMEZONE),
               }}
             />
 

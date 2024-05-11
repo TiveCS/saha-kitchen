@@ -1,5 +1,6 @@
 "use server";
 
+import { TIMEZONE } from "@/constants";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import {
@@ -10,7 +11,7 @@ import {
 } from "@/schemas/material.schema";
 import { StockStatus } from "@/types/app.type";
 import { MaterialDetail } from "@/types/material.type";
-import { getLocalTimeZone, today } from "@internationalized/date";
+import { today } from "@internationalized/date";
 import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { revalidatePath } from "next/cache";
@@ -33,7 +34,7 @@ export async function newMaterial(data: NewMaterialSchemaType) {
         create: {
           currentStock: data.initial_stock,
           reporter: { connect: { id: session.user.id } },
-          occurredAt: today(getLocalTimeZone()).toDate(getLocalTimeZone()),
+          occurredAt: today(TIMEZONE).toDate(TIMEZONE),
         },
       },
     },

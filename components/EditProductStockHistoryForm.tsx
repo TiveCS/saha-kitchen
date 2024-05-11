@@ -1,17 +1,18 @@
 "use client";
 
+import { TIMEZONE } from "@/constants";
 import { useEditProductStockHistory } from "@/queries/product.query";
 import {
   EditProductStockHistorySchema,
   EditProductStockHistorySchemaType,
 } from "@/schemas/product.schema";
+import { ProductStockHistory } from "@/types/product.type";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { today } from "@internationalized/date";
 import { Button } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FormDatePicker, FormInputNumber } from "./ui/FormInput";
-import { ProductStockHistory } from "@/types/product.type";
-import { getLocalTimeZone, today } from "@internationalized/date";
 
 interface EditProductStockFormProps {
   stock: ProductStockHistory;
@@ -67,7 +68,7 @@ export function EditProductStockForm({
         name="occurred_at"
         datePickerProps={{
           label: "Tanggal Riwayat Stok",
-          maxValue: today(getLocalTimeZone()),
+          maxValue: today(TIMEZONE),
           variant: "bordered",
         }}
       />

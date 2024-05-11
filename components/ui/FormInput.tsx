@@ -1,15 +1,11 @@
 "use client";
 
+import { TIMEZONE } from "@/constants";
 import {
   handleNumericInputChange,
   handleNumericInputDisplay,
 } from "@/utils/form";
-import {
-  getLocalTimeZone,
-  parseAbsolute,
-  parseDate,
-  toCalendarDate,
-} from "@internationalized/date";
+import { parseAbsolute, toCalendarDate } from "@internationalized/date";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -175,15 +171,13 @@ export function FormDatePicker<
             isDisabled={
               field.disabled || formState.isSubmitting || formState.isLoading
             }
-            onChange={(value) =>
-              field.onChange(value.toDate(getLocalTimeZone()))
-            }
+            onChange={(value) => field.onChange(value.toDate(TIMEZONE))}
             value={
               field.value
                 ? toCalendarDate(
                     parseAbsolute(
                       (field.value as unknown as Date).toISOString(),
-                      getLocalTimeZone()
+                      TIMEZONE
                     )
                   )
                 : undefined

@@ -1,7 +1,7 @@
 "use client";
 
+import { TIMEZONE } from "@/constants";
 import { GetProductsMany } from "@/types/product.type";
-import { getLocalTimeZone } from "@internationalized/date";
 import {
   Card,
   CardBody,
@@ -33,8 +33,8 @@ export function AnalyticsSection({ products }: AnalyticsSectionProps) {
 
   const [period, setPeriod] = useState<RangeValue<DateValue> | null>(null);
 
-  const startPeriod = period?.start.toDate(getLocalTimeZone());
-  const endPeriod = period?.end.toDate(getLocalTimeZone());
+  const startPeriod = period?.start.toDate(TIMEZONE);
+  const endPeriod = period?.end.toDate(TIMEZONE);
 
   return (
     <>

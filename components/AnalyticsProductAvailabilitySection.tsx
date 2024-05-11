@@ -1,9 +1,9 @@
 "use client";
 
+import { TIMEZONE } from "@/constants";
 import { useGetProductsAvailabilityAnalytics } from "@/queries/product.query";
 import { getListWeeksOfMonth, toCalendarDate } from "@/utils/calendar-date";
-import { formatReadableDate, formatReadableDateMonth } from "@/utils/formatter";
-import { getLocalTimeZone } from "@internationalized/date";
+import { formatReadableDate } from "@/utils/formatter";
 import {
   Card,
   CardBody,
@@ -49,8 +49,8 @@ export function AnalyticsProductAvailabilitySection({
 
   const { data, isLoading } = useGetProductsAvailabilityAnalytics({
     productIds,
-    startPeriodDate: selectedPeriod?.start.toDate(getLocalTimeZone()),
-    endPeriodDate: selectedPeriod?.end.toDate(getLocalTimeZone()),
+    startPeriodDate: selectedPeriod?.start.toDate(TIMEZONE),
+    endPeriodDate: selectedPeriod?.end.toDate(TIMEZONE),
   });
 
   if (isLoading) {
@@ -79,10 +79,10 @@ export function AnalyticsProductAvailabilitySection({
             {(item) => {
               const { label } = item;
               const formattedStart = formatReadableDate(
-                item.start.toDate(getLocalTimeZone())
+                item.start.toDate(TIMEZONE)
               );
               const formattedEnd = formatReadableDate(
-                item.end.toDate(getLocalTimeZone())
+                item.end.toDate(TIMEZONE)
               );
               const displayLabel = `${label} - (${formattedStart} - ${formattedEnd})`;
 

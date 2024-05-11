@@ -1,11 +1,8 @@
-import {
-  CalendarDate,
-  DateFormatter,
-  getLocalTimeZone,
-} from "@internationalized/date";
+import { TIMEZONE } from "@/constants";
+import { CalendarDate, DateFormatter } from "@internationalized/date";
 
 const DATE_FORMATTER = new DateFormatter("id-ID", {
-  timeZone: getLocalTimeZone(),
+  timeZone: TIMEZONE,
   dateStyle: "long",
 });
 

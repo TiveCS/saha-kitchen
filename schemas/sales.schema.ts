@@ -1,10 +1,5 @@
-import {
-  CalendarDate,
-  ZonedDateTime,
-  getLocalTimeZone,
-  isToday,
-  today,
-} from "@internationalized/date";
+import { TIMEZONE } from "@/constants";
+import { today } from "@internationalized/date";
 import { PurchaseSystem } from "@prisma/client";
 import { z } from "zod";
 
@@ -26,11 +21,9 @@ export const BaseSalesMutationSchema = z.object({
 });
 
 export const BaseSalesMutationActionSchema = BaseSalesMutationSchema.extend({
-  occurred_at: z
-    .date()
-    .max(today(getLocalTimeZone()).toDate(getLocalTimeZone()), {
-      message: "Tanggal penjualan maksimal hari ini",
-    }),
+  occurred_at: z.date().max(today(TIMEZONE).toDate(TIMEZONE), {
+    message: "Tanggal penjualan maksimal hari ini",
+  }),
 });
 
 export const EditSalesSchema = BaseSalesMutationSchema.extend({
