@@ -3,11 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const defaultUrl =
-  process.env.VERCEL_URL || process.env.AUTH_URL || "http://localhost:3000";
-
 export const metadata = {
-  metadataBase: new URL(defaultUrl),
+  metadataBase: new URL(ORIGIN_URL),
   title: "Saha Kitchen",
   description: "Logistic Management App",
 };

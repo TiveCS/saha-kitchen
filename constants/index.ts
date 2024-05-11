@@ -1,1 +1,3 @@
-export const ORIGIN_URL = process.env.VERCEL_URL || process.env.AUTH_URL;
+export const ORIGIN_URL = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : process.env.AUTH_URL || `http://localhost:3000`;
