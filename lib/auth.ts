@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { SignInResponseSchema, SignInSchema } from "@/schemas/auth.schema";
 import { signInAction } from "@/actions/auth.action";
+import { ORIGIN_URL } from "@/constants";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
@@ -12,7 +13,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(data, request) {
-        const res = await fetch(`${process.env.AUTH_URL}/api/auth/verify`, {
+        const res = await fetch(`${ORIGIN_URL}/api/auth/verify`, {
           method: "POST",
           body: JSON.stringify(data),
           headers: { "Content-Type": "application/json" },

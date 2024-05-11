@@ -1,14 +1,10 @@
-import { cn } from "@nextui-org/react";
+import { ORIGIN_URL } from "@/constants";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { Inter } from "next/font/google";
-
-const defaultUrl = process.env.AUTH_URL
-  ? `${process.env.AUTH_URL}`
-  : "http://localhost:3000";
 
 export const metadata = {
-  metadataBase: new URL(defaultUrl),
+  metadataBase: new URL(ORIGIN_URL ?? "http://localhost:3000"),
   title: "Saha Kitchen",
   description: "Logistic Management App",
 };
