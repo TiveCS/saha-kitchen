@@ -3,8 +3,12 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
+const defaultUrl = ORIGIN_URL || "http://localhost:3000";
+
+console.log(ORIGIN_URL);
+
 export const metadata = {
-  metadataBase: new URL(ORIGIN_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(defaultUrl),
   title: "Saha Kitchen",
   description: "Logistic Management App",
 };
