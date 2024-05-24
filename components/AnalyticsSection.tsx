@@ -40,7 +40,7 @@ export function AnalyticsSection({ products }: AnalyticsSectionProps) {
     <>
       <section
         id="product-selector"
-        className="mb-6 flex flex-row items-center gap-x-8"
+        className="mb-6 grid grid-cols-2 items-center gap-x-8"
       >
         <AnalyticsProductSelector
           products={products}

@@ -32,7 +32,6 @@ export function AnalyticsProductSelector({
         size="sm"
         isMultiline
         classNames={{
-          base: "max-w-md",
           trigger: "bg-background shadow-small",
           label: "pb-2",
         }}

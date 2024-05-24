@@ -53,7 +53,6 @@ export function AnalyticsMonthSelector({
       placeholder="Pilih Periode Analisis"
       selectionMode="single"
       classNames={{
-        base: "max-w-sm",
         trigger: "bg-background shadow-small",
       }}
       onSelectionChange={(selected) => {
