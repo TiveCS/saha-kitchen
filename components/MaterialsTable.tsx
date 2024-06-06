@@ -48,7 +48,10 @@ export function MaterialsTable() {
   ];
 
   const [page, setPage] = useState(1);
-  const { data, isLoading, error, isPending } = useGetMaterials({ page });
+  const { data, isLoading, error, isPending } = useGetMaterials({
+    page,
+    take: 6,
+  });
 
   const {
     isOpen: isDeleteDialogOpen,

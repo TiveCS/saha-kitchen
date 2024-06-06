@@ -18,8 +18,8 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useGetMaterials({
-  page = 1,
-  take = 6,
+  page,
+  take,
 }: {
   page?: number;
   take?: number;
