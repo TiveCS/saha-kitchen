@@ -2,7 +2,9 @@
 
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { CalendarDate } from "@internationalized/date";
+import { toCalendarDate } from "@/utils/calendar-date";
+import { formatReadableDate } from "@/utils/formatter";
+import { CalendarDate, parseDate } from "@internationalized/date";
 import { UserRole } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { redirect } from "next/navigation";
@@ -39,11 +41,7 @@ export async function getForecastings(args: { productId: string }) {
   const salesPerWeek: Map<number, Decimal> = new Map();
 
   sales.forEach((sale) => {
-    const calendarDate = new CalendarDate(
-      sale.occurredAt.getFullYear(),
-      sale.occurredAt.getMonth(),
-      sale.occurredAt.getDate()
-    );
+    const calendarDate = toCalendarDate(sale.occurredAt);
 
     if (!nextWeekDate) nextWeekDate = calendarDate.add({ weeks: 1 });
 
@@ -53,7 +51,9 @@ export async function getForecastings(args: { productId: string }) {
     }
 
     const weekSalesSum = salesPerWeek.get(weekIndex) ?? new Decimal(0);
-    salesPerWeek.set(weekIndex, weekSalesSum.add(sale.amount));
+    const additionResult = weekSalesSum.add(sale.amount);
+
+    salesPerWeek.set(weekIndex, additionResult);
   });
 
   // Calculate the moving average based on last three weeks of sales
