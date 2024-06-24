@@ -6,16 +6,10 @@ import {
   EditSalesActionSchemaType,
   NewSalesActionSchemaType,
 } from "@/schemas/sales.schema";
-import { toCalendarDate } from "@/utils/calendar-date";
-import {
-  CalendarDate,
-  getLocalTimeZone,
-  isSameDay,
-} from "@internationalized/date";
+import { UserRole } from "@prisma/client";
 import Decimal from "decimal.js";
 import { redirect } from "next/navigation";
-import { getProductStockAtDate } from "./stock.action";
-import { UserRole } from "@prisma/client";
+import { getCumulativeProductStockAtDate } from "./stock.action";
 
 export async function newSales(data: NewSalesActionSchemaType) {
   const session = await auth();
@@ -239,10 +233,7 @@ export async function getAvailableSalesCount({
   if (session.user.role !== UserRole.ADMIN)
     throw new Error("Hanya admin yang bisa melihat data penjualan");
 
-  const [stock, totalSales] = await Promise.all([
-    getProductStockAtDate(productId, occurredAt),
-    getTotalSalesUntilDate(productId, occurredAt),
-  ]);
+  const stock = await getCumulativeProductStockAtDate(productId, occurredAt);
 
   return stock.latestStock;
 }

@@ -22,6 +22,7 @@ import {
   FormInputNumber,
   FormInputSelect,
 } from "./ui/FormInput";
+import { formatNumber } from "@/utils/formatter";
 
 export function NewSalesForm() {
   const router = useRouter();
@@ -162,7 +163,10 @@ export function NewSalesForm() {
             <Input
               className="col-span-2"
               label="Stok Tersedia"
-              value={(!!productId ? availableSales ?? 0 : 0).toString()}
+              value={(!!productId
+                ? formatNumber(availableSales ?? 0)
+                : 0
+              ).toString()}
               readOnly
             />
           </div>

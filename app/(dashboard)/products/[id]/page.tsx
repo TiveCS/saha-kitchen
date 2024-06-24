@@ -1,11 +1,20 @@
 import { getProductById } from "@/actions/products.action";
-import { getProductStockAtDate } from "@/actions/stock.action";
-import { EditProductStockHistoryModal } from "@/components/EditProductStockHistoryModal";
+import { getTotalSalesUntilDate } from "@/actions/sales.action";
+import { getCumulativeProductStockAtDate } from "@/actions/stock.action";
 import { NewProductStockHistoryModal } from "@/components/NewProductStockHistoryModal";
 import { ProductDetailTabs } from "@/components/ProductDetailTabs";
+import { TIMEZONE } from "@/constants";
 import { DashboardLinkSetter } from "@/store/dashboard-links.store";
 import { formatNumber, formatReadableDate } from "@/utils/formatter";
-import { Button, Card, CardBody, CardHeader, Link } from "@nextui-org/react";
+import { today } from "@internationalized/date";
+import {
+  Button,
+  Card,
+  CardBody,
+  Divider,
+  Link,
+  Tooltip,
+} from "@nextui-org/react";
 import { CaretLeft } from "@phosphor-icons/react/dist/ssr";
 import { notFound } from "next/navigation";
 
@@ -17,7 +26,8 @@ export default async function ProductDetailsPage({
   params: { id: string };
 }) {
   const product = await getProductById(params.id);
-  const getStock = await getProductStockAtDate(params.id);
+  const totalSales = await getTotalSalesUntilDate(params.id);
+  const getStock = await getCumulativeProductStockAtDate(params.id);
 
   if (!product) return notFound();
 
@@ -36,38 +46,74 @@ export default async function ProductDetailsPage({
         ]}
       />
 
-      <section className="flex-1 flex flex-col px-8 py-4 gap-y-6 space-y-8">
-        <Button
-          as={Link}
-          startContent={<CaretLeft className="w-4 h-4" />}
-          variant="ghost"
-          href={`/products`}
-          className="w-fit"
-        >
-          Kembali
-        </Button>
+      <section className="flex-1 flex flex-col px-8 py-4">
+        <div>
+          <Button
+            as={Link}
+            startContent={<CaretLeft className="w-4 h-4" />}
+            variant="ghost"
+            href={`/products`}
+            size="sm"
+            className="w-fit"
+          >
+            Kembali
+          </Button>
+        </div>
+
+        <div className="my-6">
+          <h2 className="font-semibold text-lg mb-2">{product.name}</h2>
+          <Divider />
+        </div>
 
         <div className="w-full flex-1 flex flex-col">
           <div className="flex flex-row justify-between items-center">
-            <div className="flex flex-row gap-x-6">
-              <Card className="w-fit mb-6">
-                <CardHeader>
-                  <h4 className="font-medium text-sm">{product.name}</h4>
-                </CardHeader>
+            <div className="grid grid-cols-2 gap-x-4">
+              <Card className="mb-6">
                 <CardBody>
+                  <h4 className="font-medium mb-2 text-sm">Total Penjualan</h4>
+
+                  <p className="font-semibold text-lg">
+                    {formatNumber(totalSales)}
+                  </p>
+
                   <p className="text-small">
-                    Dibuat pada: {formatReadableDate(product.createdAt)}
+                    per {formatReadableDate(today(TIMEZONE).toDate(TIMEZONE))}
                   </p>
                 </CardBody>
               </Card>
 
-              <Card className="w-fit mb-6">
+              <Card className="mb-6">
                 <CardBody>
                   <h4 className="font-medium mb-2 text-sm">Status Stok</h4>
 
-                  <p className="text-lg font-bold">
-                    {formatNumber(getStock.latestStock)}
-                  </p>
+                  <Tooltip
+                    content={
+                      <div className="space-y-2 min-w-48">
+                        <div className="flex flex-col">
+                          <div className="flex flex-row justify-between">
+                            <p className="font-semibold">Total Stok</p>
+                            <p>{formatNumber(getStock.stockWithoutSales)}</p>
+                          </div>
+
+                          <div className="flex flex-row justify-between">
+                            <p className="font-semibold">Total Penjualan</p>
+                            <p>{formatNumber(totalSales * -1)}</p>
+                          </div>
+                        </div>
+
+                        <Divider />
+
+                        <div className="flex flex-row justify-between">
+                          <p className="font-semibold">Stok Akhir</p>
+                          <p>{formatNumber(getStock.latestStock)}</p>
+                        </div>
+                      </div>
+                    }
+                  >
+                    <p className="text-lg font-semibold">
+                      {formatNumber(getStock.latestStock)}
+                    </p>
+                  </Tooltip>
                   <p className="text-small">
                     dari {formatNumber(product.minimumStock)} {" stok minimum"}
                   </p>

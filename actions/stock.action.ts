@@ -3,6 +3,7 @@ import Decimal from "decimal.js";
 
 type GetStockAtDateResult = {
   itemId: string;
+  stockWithoutSales: number;
   latestStock: number;
   occurredAt: Date | null;
 };
@@ -27,6 +28,7 @@ export async function getProductsStockAtDate(
 
     result.set(history.productId, {
       itemId: history.productId,
+      stockWithoutSales: currentStock.toNumber(),
       latestStock: currentStock.add(history.currentStock).toNumber(),
       occurredAt: history.occurredAt,
     });
@@ -61,6 +63,7 @@ export async function getProductStockAtDate(
 
   return {
     itemId: productId,
+    stockWithoutSales: result.toNumber(),
     latestStock: result.toNumber(),
     occurredAt: latestOccurredAt,
   };
@@ -86,6 +89,7 @@ export async function getMaterialsStockAtDate(
 
     result.set(history.materialId, {
       itemId: history.materialId,
+      stockWithoutSales: currentStock.toNumber(),
       latestStock: currentStock.add(history.currentStock).toNumber(),
       occurredAt: history.occurredAt,
     });
@@ -120,6 +124,7 @@ export async function getMaterialStockAtDate(
 
   return {
     itemId: materialId,
+    stockWithoutSales: result.toNumber(),
     latestStock: result.toNumber(),
     occurredAt: latestOccurredAt,
   };
@@ -163,6 +168,7 @@ export async function getCumulativeProductStockAtDate(
 
   return {
     itemId: productId,
+    stockWithoutSales: productStock.stockWithoutSales,
     latestStock: result.toNumber(),
     occurredAt: latestEndOccurredAt,
   };

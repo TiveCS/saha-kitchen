@@ -133,7 +133,7 @@ export async function getProducts(args?: { page?: number; take?: number }) {
     }),
   ]);
 
-  const productStocks = await getProductsStockAtDate(
+  const productStocks = await getCumulativeProductsStockAtDate(
     foundProducts.map((p) => p.id)
   );
 
