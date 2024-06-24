@@ -244,9 +244,7 @@ export async function getAvailableSalesCount({
     getTotalSalesUntilDate(productId, occurredAt),
   ]);
 
-  const availableSales = stock.latestStock - totalSales;
-
-  return availableSales;
+  return stock.latestStock;
 }
 
 export async function getProductSalesInPeriod(
